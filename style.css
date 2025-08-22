@@ -26,11 +26,21 @@ h1{
   text-shadow: 0 0 8px #0a4;
 }
 
+/* SETTINGS (⋮) */
 #settingsMenu{
   position: fixed;
   top: 10px;
   right: 10px;
   z-index: 10;
+}
+#settingsBtn{
+  border:2px solid #00bb55;
+  color:#a8ffc4;
+  background:#0d1a11;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 1.25rem;
+  cursor:pointer;
 }
 #settingsDropdown{
   margin-top: 6px;
@@ -41,11 +51,18 @@ h1{
   display:flex;
   flex-direction:column;
   gap:6px;
+  width: 320px;
 }
 .hidden{ display:none; }
+.dropdown-row{
+  display:flex;
+  gap:6px;
+}
+.btn.small{ font-size: .95rem; padding: 8px 10px; }
+.btn.small.danger{ border-color: var(--red); color:#ffd7d7; }
 #saveText{
-  width: 240px;
-  height: 100px;
+  width: 100%;
+  height: 110px;
   background:#000;
   color:#9effb2;
   border:1px solid var(--green);
@@ -53,13 +70,18 @@ h1{
   padding:6px;
   resize: vertical;
 }
+.hint{
+  font-size:.9rem;
+  opacity:.8;
+}
 
+/* LAYOUT */
 #gameContainer{
   display:flex;
   gap:20px;
   justify-content:center;
   margin: 16px auto 32px;
-  max-width: 1100px;
+  max-width: 1200px;
 }
 
 .panel{
@@ -67,9 +89,20 @@ h1{
   border-radius: var(--radius);
   background:#0b0b0b;
   padding: 16px;
-  min-width: 320px;
+  min-width: 340px;
 }
 
+.sectionTitle{
+  font-size: 1.05rem;
+  opacity:.9;
+  margin-bottom: 6px;
+}
+.divider{
+  border-top:1px solid #134c1d;
+  margin: 12px 0;
+}
+
+/* LEFT: resource list */
 .resource-row{
   cursor:pointer;
   margin: 10px 0;
@@ -84,9 +117,9 @@ h1{
   box-shadow: 0 0 0 2px var(--green) inset;
 }
 
+/* RIGHT: upgrades */
 .upgrade-panel{ margin-top: 6px; }
-
-button.btn{
+.btn{
   border:2px solid #00bb55;
   color:#a8ffc4;
   background:#0d1a11;
@@ -96,18 +129,29 @@ button.btn{
   cursor:pointer;
   transition: transform .05s ease, background .15s ease, box-shadow .15s ease, border-color .15s ease;
 }
-button.btn:hover{ background: var(--green-2); }
-button.btn:active{ transform: scale(0.98); }
+.btn:hover{ background: var(--green-2); }
+.btn:active{ transform: scale(0.98); }
 .btn-wide{ width:100%; margin-top:6px; }
-button.btn:disabled{
-  opacity:.5;
-  cursor:not-allowed;
+.btn:disabled{ opacity:.5; cursor:not-allowed; }
+.cost{ font-size:.95rem; opacity:.9; margin: 6px 0 12px; }
+
+.statline{
+  font-size: 1rem;
+  opacity: .95;
+  margin: 0 0 10px;
 }
 
-.cost{
-  font-size:.95rem;
-  opacity:.9;
-  margin: 6px 0 12px;
+/* Dig Deeper block */
+.digwrap{
+  margin-top: 6px;
+  padding: 10px;
+  border:1px dashed #1e7a34;
+  border-radius: 10px;
+  background: #07140a;
+}
+.digTitle{
+  font-size: 1.1rem;
+  margin-bottom: 6px;
 }
 
 /* Shake + error glow */
