@@ -7,13 +7,38 @@ let resources = {
   electricity: 0
 };
 
-// Upgrade data (scaling)
+// Upgrade data (with multiple costs + scaling)
 let upgrades = {
-  lumberjack: { level: 0, baseCost: 10, cost: 10, resource: "wood", rate: 1 },
-  miner: { level: 0, baseCost: 10, cost: 10, resource: "stone", rate: 1 },
-  mine: { level: 0, baseCost: 20, cost: 20, resource: "iron", rate: 1 },
-  pump: { level: 0, baseCost: 30, cost: 30, resource: "oil", rate: 1 },
-  plant: { level: 0, baseCost: 50, cost: 50, resource: "electricity", rate: 1 }
+  lumberjack: { 
+    level: 0, 
+    baseCost: { wood: 10 }, 
+    cost: { wood: 10 }, 
+    rate: 1 
+  },
+  miner: { 
+    level: 0, 
+    baseCost: { stone: 10 }, 
+    cost: { stone: 10 }, 
+    rate: 1 
+  },
+  mine: { 
+    level: 0, 
+    baseCost: { iron: 20, wood: 10 }, 
+    cost: { iron: 20, wood: 10 }, 
+    rate: 1 
+  },
+  pump: { 
+    level: 0, 
+    baseCost: { oil: 30, iron: 20 }, 
+    cost: { oil: 30, iron: 20 }, 
+    rate: 1 
+  },
+  plant: { 
+    level: 0, 
+    baseCost: { electricity: 50, iron: 20, oil: 10 }, 
+    cost: { electricity: 50, iron: 20, oil: 10 }, 
+    rate: 1 
+  }
 };
 
 // DOM elements
@@ -36,16 +61,29 @@ function addResource(type, amount) {
   saveGame();
 }
 
-// Upgrade purchase logic with scaling
+// Upgrade purchase logic with multi-costs + scaling
 function buyUpgrade(name) {
   let u = upgrades[name];
-  if (resources[u.resource] >= u.cost) {
-    resources[u.resource] -= u.cost;
-    u.level++;
-    u.cost = Math.floor(u.baseCost * Math.pow(1.5, u.level)); // cost grows ×1.5
-    updateDisplay();
-    saveGame();
+
+  // check affordability
+  for (let res in u.cost) {
+    if (resources[res] < u.cost[res]) return; // can't afford
   }
+
+  // subtract costs
+  for (let res in u.cost) {
+    resources[res] -= u.cost[res];
+  }
+
+  u.level++;
+
+  // scale costs: exponential (×1.8 per level)
+  for (let res in u.baseCost) {
+    u.cost[res] = Math.floor(u.baseCost[res] * Math.pow(1.8, u.level));
+  }
+
+  updateDisplay();
+  saveGame();
 }
 
 // Upgrade buttons
@@ -74,11 +112,17 @@ function updateDisplay() {
   oilEl.textContent = resources.oil;
   electricityEl.textContent = resources.electricity;
 
-  document.getElementById("buyLumberjack").textContent = `Hire Lumberjack (Cost: ${upgrades.lumberjack.cost} wood)`;
-  document.getElementById("buyMiner").textContent = `Hire Miner (Cost: ${upgrades.miner.cost} stone)`;
-  document.getElementById("buyMine").textContent = `Build Iron Mine (Cost: ${upgrades.mine.cost} iron)`;
-  document.getElementById("buyPump").textContent = `Build Oil Pump (Cost: ${upgrades.pump.cost} oil)`;
-  document.getElementById("buyPlant").textContent = `Build Power Plant (Cost: ${upgrades.plant.cost} electricity)`;
+  // show multi-costs dynamically
+  document.getElementById("buyLumberjack").textContent = 
+    `Hire Lumberjack (Cost: ${upgrades.lumberjack.cost.wood} wood, Level: ${upgrades.lumberjack.level})`;
+  document.getElementById("buyMiner").textContent = 
+    `Hire Miner (Cost: ${upgrades.miner.cost.stone} stone, Level: ${upgrades.miner.level})`;
+  document.getElementById("buyMine").textContent = 
+    `Build Iron Mine (Cost: ${upgrades.mine.cost.iron} iron, ${upgrades.mine.cost.wood} wood, Level: ${upgrades.mine.level})`;
+  document.getElementById("buyPump").textContent = 
+    `Build Oil Pump (Cost: ${upgrades.pump.cost.oil} oil, ${upgrades.pump.cost.iron} iron, Level: ${upgrades.pump.level})`;
+  document.getElementById("buyPlant").textContent = 
+    `Build Power Plant (Cost: ${upgrades.plant.cost.electricity} electricity, ${upgrades.plant.cost.iron} iron, ${upgrades.plant.cost.oil} oil, Level: ${upgrades.plant.level})`;
 }
 
 // Save + Load
@@ -90,7 +134,6 @@ function loadGame() {
   const save = JSON.parse(localStorage.getItem("earthIdleSave"));
   if (save) {
     resources = save.resources || resources;
-    // merge upgrades properly
     for (let key in upgrades) {
       if (save.upgrades[key]) {
         upgrades[key].level = save.upgrades[key].level;
