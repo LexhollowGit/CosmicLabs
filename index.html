@@ -1,57 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Earth Idle</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <title>Earth Resources Idle</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>🌍 Earth Idle</h1>
+  <h1>🌍 Earth Resources Idle</h1>
 
-  <div class="container">
-    <div class="resource-header" onclick="toggleUpgrades('woodUpgrades')">🌲 Wood: <span id="wood">0</span></div>
-    <div id="woodUpgrades" class="upgrades">
-      <button id="gatherWood">Gather Wood (+1)</button>
-      <button id="buyLumberjack"></button>
-      <p>Lumberjacks cut trees automatically.</p>
-    </div>
-  </div>
+  <main class="layout">
+    <!-- LEFT: resources list -->
+    <section class="panel">
+      <h2>Resources</h2>
 
-  <div class="container">
-    <div class="resource-header" onclick="toggleUpgrades('stoneUpgrades')">🪨 Stone: <span id="stone">0</span></div>
-    <div id="stoneUpgrades" class="upgrades">
-      <button id="gatherStone">Mine Stone (+1)</button>
-      <button id="buyMiner"></button>
-      <p>Miners dig stone automatically.</p>
-    </div>
-  </div>
+      <div class="resource-row" data-select="wood">
+        <div class="label">🌲 Wood</div>
+        <div class="value"><span id="wood">0</span></div>
+        <button id="gatherWood" class="btn">Gather (+1)</button>
+      </div>
 
-  <div class="container">
-    <div class="resource-header" onclick="toggleUpgrades('ironUpgrades')">⛏️ Iron: <span id="iron">0</span></div>
-    <div id="ironUpgrades" class="upgrades">
-      <button id="gatherIron">Mine Iron (+1)</button>
-      <button id="buyMine"></button>
-      <p>Iron mines extract iron automatically.</p>
-    </div>
-  </div>
+      <div class="resource-row" data-select="stone">
+        <div class="label">🪨 Stone</div>
+        <div class="value"><span id="stone">0</span></div>
+        <button id="gatherStone" class="btn">Mine (+1)</button>
+      </div>
 
-  <div class="container">
-    <div class="resource-header" onclick="toggleUpgrades('oilUpgrades')">🛢️ Oil: <span id="oil">0</span></div>
-    <div id="oilUpgrades" class="upgrades">
-      <button id="gatherOil">Pump Oil (+1)</button>
-      <button id="buyPump"></button>
-      <p>Oil pumps extract oil automatically.</p>
-    </div>
-  </div>
+      <div class="resource-row" data-select="iron">
+        <div class="label">⛓️ Iron</div>
+        <div class="value"><span id="iron">0</span></div>
+        <button id="gatherIron" class="btn">Extract (+1)</button>
+      </div>
 
-  <div class="container">
-    <div class="resource-header" onclick="toggleUpgrades('electricityUpgrades')">⚡ Electricity: <span id="electricity">0</span></div>
-    <div id="electricityUpgrades" class="upgrades">
-      <button id="generatePower">Generate Power (+1)</button>
-      <button id="buyPlant"></button>
-      <p>Power plants generate electricity automatically.</p>
-    </div>
-  </div>
+      <div class="resource-row" data-select="oil">
+        <div class="label">🛢️ Oil</div>
+        <div class="value"><span id="oil">0</span></div>
+        <button id="gatherOil" class="btn">Drill (+1)</button>
+      </div>
+
+      <div class="resource-row" data-select="electricity">
+        <div class="label">⚡ Electricity</div>
+        <div class="value"><span id="electricity">0</span></div>
+        <button id="generatePower" class="btn">Generate (+1)</button>
+      </div>
+    </section>
+
+    <!-- RIGHT: folder-style upgrades -->
+    <section class="panel">
+      <h2 id="panelTitle">Upgrades — Wood</h2>
+
+      <!-- WOOD -->
+      <div class="upgrades-panel" id="panel-wood">
+        <button id="buyLumberjack" class="btn btn-wide"></button>
+        <div class="cost" id="cost-lumberjack"></div>
+        <p class="desc">Lumberjacks chop wood automatically.</p>
+      </div>
+
+      <!-- STONE -->
+      <div class="upgrades-panel hidden" id="panel-stone">
+        <button id="buyMiner" class="btn btn-wide"></button>
+        <div class="cost" id="cost-miner"></div>
+        <p class="desc">Miners extract stone automatically.</p>
+      </div>
+
+      <!-- IRON -->
+      <div class="upgrades-panel hidden" id="panel-iron">
+        <button id="buyMine" class="btn btn-wide"></button>
+        <div class="cost" id="cost-mine"></div>
+        <p class="desc">Iron mines extract iron automatically.</p>
+      </div>
+
+      <!-- OIL -->
+      <div class="upgrades-panel hidden" id="panel-oil">
+        <button id="buyPump" class="btn btn-wide"></button>
+        <div class="cost" id="cost-pump"></div>
+        <p class="desc">Oil pumps extract oil automatically.</p>
+      </div>
+
+      <!-- ELECTRICITY -->
+      <div class="upgrades-panel hidden" id="panel-electricity">
+        <button id="buyPlant" class="btn btn-wide"></button>
+        <div class="cost" id="cost-plant"></div>
+        <p class="desc">Power plants generate electricity automatically.</p>
+      </div>
+    </section>
+  </main>
 
   <script src="script.js"></script>
 </body>
