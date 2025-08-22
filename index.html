@@ -10,29 +10,44 @@
   <h1>🌍 Earth Resources Idle</h1>
 
   <div id="resources">
-    <p>🌲 Wood: <span id="wood">0</span></p>
-    <button id="gatherWood">Chop Wood</button>
+    <div class="resource">
+      <img src="icons/wood.png" class="icon"> 
+      Wood: <span id="wood">0</span>
+      <button id="gatherWood">Chop Wood</button>
+    </div>
 
-    <p>🪨 Stone: <span id="stone">0</span></p>
-    <button id="gatherStone">Mine Stone</button>
+    <div class="resource">
+      <img src="icons/stone.png" class="icon"> 
+      Stone: <span id="stone">0</span>
+      <button id="gatherStone">Mine Stone</button>
+    </div>
 
-    <p>⛏️ Iron: <span id="iron">0</span></p>
-    <button id="gatherIron">Extract Iron</button>
+    <div class="resource">
+      <img src="icons/iron.png" class="icon"> 
+      Iron: <span id="iron">0</span>
+      <button id="gatherIron">Extract Iron</button>
+    </div>
 
-    <p>🛢️ Oil: <span id="oil">0</span></p>
-    <button id="gatherOil">Drill Oil</button>
+    <div class="resource">
+      <img src="icons/oil.png" class="icon"> 
+      Oil: <span id="oil">0</span>
+      <button id="gatherOil">Drill Oil</button>
+    </div>
 
-    <p>⚡ Electricity: <span id="electricity">0</span></p>
-    <button id="generatePower">Generate Power</button>
+    <div class="resource">
+      <img src="icons/electricity.png" class="icon"> 
+      Electricity: <span id="electricity">0</span>
+      <button id="generatePower">Generate Power</button>
+    </div>
   </div>
 
   <h2>🏗️ Upgrades</h2>
   <div id="upgrades">
-    <button id="buyLumberjack">Hire Lumberjack (50 wood)</button>
-    <button id="buyMiner">Hire Miner (50 stone)</button>
-    <button id="buyMine">Build Iron Mine (100 iron, 50 wood)</button>
-    <button id="buyPump">Build Oil Pump (200 oil, 100 iron)</button>
-    <button id="buyPlant">Build Power Plant (500 electricity, 200 iron, 100 oil)</button>
+    <button id="buyLumberjack">Hire Lumberjack (Cost: 10 wood)</button>
+    <button id="buyMiner">Hire Miner (Cost: 10 stone)</button>
+    <button id="buyMine">Build Iron Mine (Cost: 20 iron, 10 wood)</button>
+    <button id="buyPump">Build Oil Pump (Cost: 30 oil, 20 iron)</button>
+    <button id="buyPlant">Build Power Plant (Cost: 50 electricity, 20 iron, 10 oil)</button>
   </div>
 
   <script src="script.js"></script>
