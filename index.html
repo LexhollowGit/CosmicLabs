@@ -13,29 +13,45 @@
   <div id="settingsMenu">
     <button id="settingsBtn" class="btn">⋮</button>
     <div id="settingsDropdown" class="hidden">
-      <button id="exportSave" class="btn">Export Save</button>
-      <button id="importSave" class="btn">Import Save</button>
-      <button id="resetGame" class="btn">Reset Game</button>
-      <textarea id="saveText" placeholder="Paste save data here..."></textarea>
+      <div class="dropdown-row">
+        <button id="exportSave" class="btn small">Export</button>
+        <button id="importSave" class="btn small">Import</button>
+        <button id="resetGame" class="btn small danger">Reset</button>
+      </div>
+      <textarea id="saveText" placeholder="Export shows here. Paste to import."></textarea>
+      <div class="hint">Tip: copy everything in the box to back up your save.</div>
     </div>
   </div>
 
   <div id="gameContainer">
-    <!-- Left: resources list (click like folders) -->
+    <!-- LEFT: resources list (click like folders) -->
     <div id="leftPanel" class="panel">
-      <div class="resource-row" data-select="wood">🌲 Wood: <span id="wood">0</span></div>
+      <div class="sectionTitle">Surface Resources</div>
+
+      <div class="resource-row active" data-select="wood">🌲 Wood: <span id="wood">0</span></div>
       <div class="resource-row" data-select="stone">⛰️ Stone: <span id="stone">0</span></div>
       <div class="resource-row" data-select="iron">⛓️ Iron: <span id="iron">0</span></div>
       <div class="resource-row" data-select="oil">🛢️ Oil: <span id="oil">0</span></div>
       <div class="resource-row" data-select="electricity">⚡ Electricity: <span id="electricity">0</span></div>
+
+      <div class="divider"></div>
+      <div class="sectionTitle">Deep Resources</div>
+      <div id="deepHint" class="hint">Unlock by meeting requirements or using “Dig Deeper”.</div>
+
+      <!-- deep list (hidden until unlocked) -->
+      <div id="deepList" class="hidden">
+        <div class="resource-row" data-select="coal">🪨 Coal: <span id="coal">0</span></div>
+        <div class="resource-row" data-select="uranium">☢️ Uranium: <span id="uranium">0</span></div>
+      </div>
     </div>
 
-    <!-- Right: upgrades for selected resource -->
+    <!-- RIGHT: upgrades for selected “folder” -->
     <div id="rightPanel" class="panel">
       <h2 id="panelTitle">Upgrades — Wood</h2>
 
       <!-- WOOD -->
       <div class="upgrade-panel" id="panel-wood">
+        <div class="statline" id="stat-wood"></div>
         <button id="gatherWood" class="btn">Gather Wood (+1)</button>
 
         <button id="buyLumberjack" class="btn btn-wide">Hire Lumberjack (Lv 0)</button>
@@ -47,6 +63,7 @@
 
       <!-- STONE -->
       <div class="upgrade-panel hidden" id="panel-stone">
+        <div class="statline" id="stat-stone"></div>
         <button id="gatherStone" class="btn">Gather Stone (+1)</button>
 
         <button id="buyMiner" class="btn btn-wide">Hire Miner (Lv 0)</button>
@@ -58,6 +75,7 @@
 
       <!-- IRON -->
       <div class="upgrade-panel hidden" id="panel-iron">
+        <div class="statline" id="stat-iron"></div>
         <button id="gatherIron" class="btn">Mine Iron (+1)</button>
 
         <button id="buyMine" class="btn btn-wide">Build Iron Mine (Lv 0)</button>
@@ -69,6 +87,7 @@
 
       <!-- OIL -->
       <div class="upgrade-panel hidden" id="panel-oil">
+        <div class="statline" id="stat-oil"></div>
         <button id="gatherOil" class="btn">Pump Oil (+1)</button>
 
         <button id="buyPump" class="btn btn-wide">Build Oil Pump (Lv 0)</button>
@@ -80,6 +99,7 @@
 
       <!-- ELECTRICITY -->
       <div class="upgrade-panel hidden" id="panel-electricity">
+        <div class="statline" id="stat-electricity"></div>
         <button id="generatePower" class="btn">Generate Power (+1)</button>
 
         <button id="buyPlant" class="btn btn-wide">Build Power Plant (Lv 0)</button>
@@ -87,6 +107,41 @@
 
         <button id="buyElecStorage" class="btn btn-wide">Upgrade Storage (Lv 0)</button>
         <div id="cost-elecStorage" class="cost">Cost: 50 electricity</div>
+
+        <div class="divider"></div>
+        <div class="digwrap">
+          <div class="digTitle">🕳️ Dig Deeper</div>
+          <div id="digReq" class="hint">
+            Requirement: reach Lv 5 in all surface generators
+            <br>— or pay: 500 Wood, 500 Stone, 300 Iron, 200 Oil, 200 Electricity
+          </div>
+          <button id="digDeeperBtn" class="btn btn-wide">Dig Deeper</button>
+          <div id="digStatus" class="hint"></div>
+        </div>
+      </div>
+
+      <!-- COAL (DEEP) -->
+      <div class="upgrade-panel hidden" id="panel-coal">
+        <div class="statline" id="stat-coal"></div>
+        <button id="gatherCoal" class="btn">Gather Coal (+1)</button>
+
+        <button id="buyCoalRig" class="btn btn-wide">Build Coal Rig (Lv 0)</button>
+        <div id="cost-coalRig" class="cost">Cost: 100 coal, 50 iron</div>
+
+        <button id="buyCoalStorage" class="btn btn-wide">Upgrade Storage (Lv 0)</button>
+        <div id="cost-coalStorage" class="cost">Cost: 80 coal</div>
+      </div>
+
+      <!-- URANIUM (DEEP) -->
+      <div class="upgrade-panel hidden" id="panel-uranium">
+        <div class="statline" id="stat-uranium"></div>
+        <button id="gatherUranium" class="btn">Collect Uranium (+1)</button>
+
+        <button id="buyUraniumDrill" class="btn btn-wide">Build Uranium Drill (Lv 0)</button>
+        <div id="cost-uraniumDrill" class="cost">Cost: 150 uranium, 100 iron, 200 electricity</div>
+
+        <button id="buyUraniumStorage" class="btn btn-wide">Upgrade Storage (Lv 0)</button>
+        <div id="cost-uraniumStorage" class="cost">Cost: 120 uranium</div>
       </div>
     </div>
   </div>
