@@ -3,27 +3,38 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CosmicLabs</title>
+  <title>Earth Resources Idle</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <h1> CosmicLabs</h1>
-  </header>
+  <h1>🌍 Earth Resources Idle</h1>
 
-  <main>
-    <section id="resources">
-      <h2>Resources</h2>
-      <p>Energy: <span id="energy">0</span></p>
-    </section>
+  <div id="resources">
+    <p>🌲 Wood: <span id="wood">0</span></p>
+    <button id="gatherWood">Chop Wood</button>
 
-    <section id="actions">
-      <h2>Actions</h2>
-      <button id="collect">Collect Energy ⚡</button>
-    </section>
-  </main>
+    <p>🪨 Stone: <span id="stone">0</span></p>
+    <button id="gatherStone">Mine Stone</button>
+
+    <p>⛏️ Iron: <span id="iron">0</span></p>
+    <button id="gatherIron">Extract Iron</button>
+
+    <p>🛢️ Oil: <span id="oil">0</span></p>
+    <button id="gatherOil">Drill Oil</button>
+
+    <p>⚡ Electricity: <span id="electricity">0</span></p>
+    <button id="generatePower">Generate Power</button>
+  </div>
+
+  <h2>🏗️ Upgrades</h2>
+  <div id="upgrades">
+    <button id="buyLumberjack">Hire Lumberjack (50 wood)</button>
+    <button id="buyMiner">Hire Miner (50 stone)</button>
+    <button id="buyMine">Build Iron Mine (100 iron, 50 wood)</button>
+    <button id="buyPump">Build Oil Pump (200 oil, 100 iron)</button>
+    <button id="buyPlant">Build Power Plant (500 electricity, 200 iron, 100 oil)</button>
+  </div>
 
   <script src="script.js"></script>
 </body>
-
 </html>
