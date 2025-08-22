@@ -1,115 +1,126 @@
-body {
-  font-family: Arial, sans-serif;
-  background: black;
-  color: white;
-  text-align: center;
+:root{
+  --bg:#000;
+  --fg:#d7ffe0;
+  --green:#1f5f2a;      /* dark green border */
+  --green-2:#15421c;    /* darker hover */
+  --red:#e34747;
+  --radius:12px;
+}
+
+*{ box-sizing:border-box; }
+
+body{
+  margin:0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  background:#000;
+  color:var(--fg);
   padding: 10px;
-  font-size: 1.2rem;
+  font-size: 1.15rem;
 }
 
-h1 {
-  font-size: 2.8rem;
-  margin-bottom: 20px;
-  color: #00ff66;
-  text-shadow: 0 0 8px #006633;
+h1{
+  text-align:center;
+  margin: 12px 0 8px;
+  font-size: 2.6rem;
+  color:#00ff66;
+  text-shadow: 0 0 8px #0a4;
 }
 
-#gameContainer {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  margin-top: 20px;
-}
-
-#leftPanel, #rightPanel {
-  border: 2px solid #006633;
-  padding: 20px;
-  border-radius: 12px;
-  background: #111;
-  flex: 1;
-  max-width: 400px;
-}
-
-.resource-row {
-  cursor: pointer;
-  margin: 12px 0;
-  padding: 10px;
-  border-radius: 8px;
-  transition: background 0.2s;
-}
-.resource-row:hover, .resource-row.active {
-  background: #003322;
-}
-
-button {
-  margin: 6px;
-  padding: 10px 16px;
-  font-size: 1.1rem;
-  border-radius: 10px;
-  border: 2px solid #00ff66;
-  background: black;
-  color: #00ff66;
-  cursor: pointer;
-  transition: transform 0.1s, background 0.2s;
-}
-button:hover {
-  transform: scale(1.05);
-  background: #002211;
-}
-button:disabled {
-  border-color: gray;
-  color: gray;
-  cursor: not-allowed;
-}
-
-.cost {
-  font-size: 0.9rem;
-  margin-bottom: 12px;
-  color: #aaa;
-}
-
-/* Shake effect */
-.shake {
-  animation: shake 0.4s;
-}
-@keyframes shake {
-  0% { transform: translateX(0); }
-  20% { transform: translateX(-5px); }
-  40% { transform: translateX(5px); }
-  60% { transform: translateX(-5px); }
-  80% { transform: translateX(5px); }
-  100% { transform: translateX(0); }
-}
-
-/* Settings menu */
-#settingsMenu {
-  position: absolute;
+#settingsMenu{
+  position: fixed;
   top: 10px;
   right: 10px;
+  z-index: 10;
 }
-#settingsBtn {
-  font-size: 1.5rem;
-  padding: 4px 10px;
-}
-#settingsDropdown {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  background: #111;
-  border: 1px solid #006633;
+#settingsDropdown{
+  margin-top: 6px;
+  background:#111;
+  border:1px solid var(--green);
+  border-radius: 10px;
   padding: 10px;
-  margin-top: 5px;
-  border-radius: 8px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
 }
-.hidden {
-  display: none;
+.hidden{ display:none; }
+#saveText{
+  width: 240px;
+  height: 100px;
+  background:#000;
+  color:#9effb2;
+  border:1px solid var(--green);
+  border-radius:8px;
+  padding:6px;
+  resize: vertical;
 }
-#saveText {
-  width: 200px;
-  height: 80px;
-  background: black;
-  color: #00ff66;
-  border: 1px solid #006633;
-  padding: 4px;
-  font-family: monospace;
+
+#gameContainer{
+  display:flex;
+  gap:20px;
+  justify-content:center;
+  margin: 16px auto 32px;
+  max-width: 1100px;
+}
+
+.panel{
+  border:2px solid var(--green);
+  border-radius: var(--radius);
+  background:#0b0b0b;
+  padding: 16px;
+  min-width: 320px;
+}
+
+.resource-row{
+  cursor:pointer;
+  margin: 10px 0;
+  padding: 10px 12px;
+  border:1px solid var(--green);
+  border-radius: 10px;
+  transition: background .15s ease, box-shadow .15s ease;
+}
+.resource-row:hover,
+.resource-row.active{
+  background:#072712;
+  box-shadow: 0 0 0 2px var(--green) inset;
+}
+
+.upgrade-panel{ margin-top: 6px; }
+
+button.btn{
+  border:2px solid #00bb55;
+  color:#a8ffc4;
+  background:#0d1a11;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 1.05rem;
+  cursor:pointer;
+  transition: transform .05s ease, background .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+button.btn:hover{ background: var(--green-2); }
+button.btn:active{ transform: scale(0.98); }
+.btn-wide{ width:100%; margin-top:6px; }
+button.btn:disabled{
+  opacity:.5;
+  cursor:not-allowed;
+}
+
+.cost{
+  font-size:.95rem;
+  opacity:.9;
+  margin: 6px 0 12px;
+}
+
+/* Shake + error glow */
+.shake{ animation: shake .35s ease; }
+@keyframes shake{
+  0%{ transform: translateX(0); }
+  20%{ transform: translateX(-6px); }
+  40%{ transform: translateX(6px); }
+  60%{ transform: translateX(-4px); }
+  80%{ transform: translateX(4px); }
+  100%{ transform: translateX(0); }
+}
+.btn-error{
+  border-color: var(--red) !important;
+  box-shadow: 0 0 0 2px rgba(227,71,71,.55) inset, 0 0 12px rgba(227,71,71,.35);
 }
