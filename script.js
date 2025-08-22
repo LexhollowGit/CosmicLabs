@@ -61,23 +61,42 @@ function addResource(type, amount) {
   saveGame();
 }
 
-// Upgrade purchase logic with multi-costs + scaling
+// Upgrade purchase logic with multi-costs + scaling + shake effect
 function buyUpgrade(name) {
   let u = upgrades[name];
+  let canAfford = true;
 
   // check affordability
   for (let res in u.cost) {
-    if (resources[res] < u.cost[res]) return; // can't afford
+    if (resources[res] < u.cost[res]) {
+      canAfford = false;
+      break;
+    }
   }
 
-  // subtract costs
+  if (!canAfford) {
+    // ❌ Trigger shake + red effect
+    const btn = document.getElementById("buy" + capitalize(name));
+    btn.classList.add("shake");
+    document.body.classList.add("flash-red");
+
+    // remove after animation
+    setTimeout(() => {
+      btn.classList.remove("shake");
+      document.body.classList.remove("flash-red");
+    }, 400);
+
+    return; // stop here
+  }
+
+  // ✅ subtract costs
   for (let res in u.cost) {
     resources[res] -= u.cost[res];
   }
 
   u.level++;
 
-  // scale costs: exponential (×1.8 per level)
+  // scale costs: exponential (×1.8 per level, infinite scaling)
   for (let res in u.baseCost) {
     u.cost[res] = Math.floor(u.baseCost[res] * Math.pow(1.8, u.level));
   }
@@ -145,3 +164,8 @@ function loadGame() {
 }
 
 loadGame();
+
+// helper
+function capitalize(s) {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
