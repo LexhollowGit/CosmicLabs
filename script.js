@@ -31,4 +31,11 @@ function loadGame() {
   updateDisplay();
 }
 
+// Auto-gain energy every second
+setInterval(() => {
+  energy += 1; // gain 1 energy per second
+  updateDisplay();
+  saveGame();
+}, 1000); // 1000 ms = 1 second
+
 loadGame();
