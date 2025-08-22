@@ -2,47 +2,55 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Earth Resources Idle</title>
+  <title>Earth Idle</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>🌍 Earth Resources Idle</h1>
+  <h1>🌍 Earth Idle</h1>
 
-  <div id="resources">
-    <div class="resource">
-      🌲 Wood: <span id="wood">0</span>
-      <button id="gatherWood">Chop Wood</button>
-    </div>
-
-    <div class="resource">
-      🪨 Stone: <span id="stone">0</span>
-      <button id="gatherStone">Mine Stone</button>
-    </div>
-
-    <div class="resource">
-      ⛓️ Iron: <span id="iron">0</span>
-      <button id="gatherIron">Extract Iron</button>
-    </div>
-
-    <div class="resource">
-      🛢️ Oil: <span id="oil">0</span>
-      <button id="gatherOil">Drill Oil</button>
-    </div>
-
-    <div class="resource">
-      ⚡ Electricity: <span id="electricity">0</span>
-      <button id="generatePower">Generate Power</button>
+  <div class="container">
+    <div class="resource-header" onclick="toggleUpgrades('woodUpgrades')">🌲 Wood: <span id="wood">0</span></div>
+    <div id="woodUpgrades" class="upgrades">
+      <button id="gatherWood">Gather Wood (+1)</button>
+      <button id="buyLumberjack"></button>
+      <p>Lumberjacks cut trees automatically.</p>
     </div>
   </div>
 
-  <h2>🏗️ Upgrades</h2>
-  <div id="upgrades">
-    <button id="buyLumberjack">Hire Lumberjack (Cost: 10 wood)</button>
-    <button id="buyMiner">Hire Miner (Cost: 10 stone)</button>
-    <button id="buyMine">Build Iron Mine (Cost: 20 iron, 10 wood)</button>
-    <button id="buyPump">Build Oil Pump (Cost: 30 oil, 20 iron)</button>
-    <button id="buyPlant">Build Power Plant (Cost: 50 electricity, 20 iron, 10 oil)</button>
+  <div class="container">
+    <div class="resource-header" onclick="toggleUpgrades('stoneUpgrades')">🪨 Stone: <span id="stone">0</span></div>
+    <div id="stoneUpgrades" class="upgrades">
+      <button id="gatherStone">Mine Stone (+1)</button>
+      <button id="buyMiner"></button>
+      <p>Miners dig stone automatically.</p>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="resource-header" onclick="toggleUpgrades('ironUpgrades')">⛏️ Iron: <span id="iron">0</span></div>
+    <div id="ironUpgrades" class="upgrades">
+      <button id="gatherIron">Mine Iron (+1)</button>
+      <button id="buyMine"></button>
+      <p>Iron mines extract iron automatically.</p>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="resource-header" onclick="toggleUpgrades('oilUpgrades')">🛢️ Oil: <span id="oil">0</span></div>
+    <div id="oilUpgrades" class="upgrades">
+      <button id="gatherOil">Pump Oil (+1)</button>
+      <button id="buyPump"></button>
+      <p>Oil pumps extract oil automatically.</p>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="resource-header" onclick="toggleUpgrades('electricityUpgrades')">⚡ Electricity: <span id="electricity">0</span></div>
+    <div id="electricityUpgrades" class="upgrades">
+      <button id="generatePower">Generate Power (+1)</button>
+      <button id="buyPlant"></button>
+      <p>Power plants generate electricity automatically.</p>
+    </div>
   </div>
 
   <script src="script.js"></script>
