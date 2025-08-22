@@ -1,53 +1,7 @@
-body {
-  font-family: Arial, sans-serif;
-  background: linear-gradient(to bottom, #87ceeb, #f0f0f0);
-  text-align: center;
-  padding: 20px;
-}
-
-h1 {
-  font-size: 2.5rem;
-  margin-bottom: 20px;
-}
-
-.resource {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  font-size: 1.2rem;
-  margin: 10px 0;
-}
-
-.icon {
-  width: 32px; /* 2x2-ish */
-  height: 32px;
-}
-
-button {
-  margin: 5px;
-  padding: 8px 16px;
-  font-size: 1rem;
-  border-radius: 10px;
-  border: none;
-  background: #4caf50;
-  color: white;
-  cursor: pointer;
-  transition: transform 0.1s;
-}
-
-button:hover {
-  transform: scale(1.05);
-  background: #45a049;
-}
-
-button:disabled {
-  background: gray;
-  cursor: not-allowed;
-}
 /* Shake effect */
 .shake {
   animation: shake 0.4s;
+  background-color: #e74c3c !important; /* 🔴 temporary red */
 }
 
 @keyframes shake {
@@ -59,13 +13,12 @@ button:disabled {
   100% { transform: translateX(0); }
 }
 
-/* Red flash effect */
+/* Red flash effect (whole screen) */
 .flash-red {
   animation: flashRed 0.4s;
 }
 
 @keyframes flashRed {
-  0% { background-color: rgba(255, 0, 0, 0.3); }
+  0% { background-color: rgba(255, 0, 0, 0.2); }
   100% { background-color: transparent; }
 }
-
