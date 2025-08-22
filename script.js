@@ -26,7 +26,7 @@ let upgrades = {
   stoneStorage: { level: 0, baseCost: { stone: 20 }, cost: { stone: 20 } },
   ironStorage: { level: 0, baseCost: { iron: 30 }, cost: { iron: 30 } },
   oilStorage: { level: 0, baseCost: { oil: 40 }, cost: { oil: 40 } },
-  elecStorage: { level: 0, baseCost: { electricity: 60 }, cost: { electricity: 60 } },
+  elecStorage: { level: 0, baseCost: { electricity: 50 }, cost: { electricity: 50 } },
 };
 
 let prodPerSec = { wood: 0, stone: 0, iron: 0, oil: 0, electricity: 0 };
@@ -204,3 +204,4 @@ $("exportSave").addEventListener("click",()=>{
   $("saveText").value = localStorage.getItem("earthIdleSave_v3") || "";
 });
 $("importSave").addEvent
+
