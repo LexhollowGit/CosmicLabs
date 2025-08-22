@@ -15,8 +15,6 @@ let storage = {
   electricity: 50,
 };
 
-// Each upgrade boosts that resource's production per second.
-// Costs scale exponentially; levels are infinite.
 let upgrades = {
   lumberjack: { level: 0, baseCost: { wood: 10 }, cost: { wood: 10 } },
   miner:      { level: 0, baseCost: { stone: 10 }, cost: { stone: 10 } },
@@ -24,63 +22,51 @@ let upgrades = {
   pump:       { level: 0, baseCost: { oil: 30, iron: 20 }, cost: { oil: 30, iron: 20 } },
   plant:      { level: 0, baseCost: { electricity: 50, iron: 20, oil: 10 }, cost: { electricity: 50, iron: 20, oil: 10 } },
 
-  // Storage upgrades
-  woodStorage:        { level: 0, baseCost: { wood: 25 }, cost: { wood: 25 } },
-  stoneStorage:       { level: 0, baseCost: { stone: 25 }, cost: { stone: 25 } },
-  ironStorage:        { level: 0, baseCost: { iron: 50 }, cost: { iron: 50 } },
-  oilStorage:         { level: 0, baseCost: { oil: 75 }, cost: { oil: 75 } },
-  electricityStorage: { level: 0, baseCost: { electricity: 100 }, cost: { electricity: 100 } },
+  woodStorage: { level: 0, baseCost: { wood: 20 }, cost: { wood: 20 } },
+  stoneStorage: { level: 0, baseCost: { stone: 20 }, cost: { stone: 20 } },
+  ironStorage: { level: 0, baseCost: { iron: 30 }, cost: { iron: 30 } },
+  oilStorage: { level: 0, baseCost: { oil: 40 }, cost: { oil: 40 } },
+  elecStorage: { level: 0, baseCost: { electricity: 60 }, cost: { electricity: 60 } },
 };
 
-// Production model
 let prodPerSec = { wood: 0, stone: 0, iron: 0, oil: 0, electricity: 0 };
 let accum = { wood: 0, stone: 0, iron: 0, oil: 0, electricity: 0 };
+let selected = "wood";
 
-let selected = "wood"; // Which resource’s upgrades are shown
+const $ = (id) => document.getElementById(id);
 
 // ----------------- Helpers -----------------
-const $ = (id) => document.getElementById(id);
-const clampNum = (n) => (Number.isFinite(n) ? n : 0);
-
 function formatCost(costObj){
-  return Object.keys(costObj)
-    .map(k => `${costObj[k]} ${k}`)
-    .join(", ");
+  return Object.keys(costObj).map(k => `${costObj[k]} ${k}`).join(", ");
 }
-
 function canAfford(costObj){
-  for (const k in costObj){
-    if (clampNum(resources[k]) < clampNum(costObj[k])) return false;
-  }
+  for (const k in costObj){ if (resources[k] < costObj[k]) return false; }
   return true;
 }
-function payCost(costObj){
-  for (const k in costObj){
-    resources[k] = clampNum(resources[k]) - clampNum(costObj[k]);
-  }
-}
-
-// Exponential scaling
+function payCost(costObj){ for (const k in costObj){ resources[k] -= costObj[k]; } }
 function rescaleCost(u){
-  const lvl = clampNum(u.level);
+  const lvl = u.level;
   const base = u.baseCost;
   const next = {};
-  for (const k in base){
-    next[k] = Math.floor(clampNum(base[k]) * Math.pow(1.8, lvl));
-  }
+  for (const k in base){ next[k] = Math.floor(base[k] * Math.pow(1.8, lvl)); }
   u.cost = next;
 }
-
-// Recompute production per second
 function recomputeProd(){
-  prodPerSec.wood        = clampNum(upgrades.lumberjack.level);
-  prodPerSec.stone       = clampNum(upgrades.miner.level);
-  prodPerSec.iron        = clampNum(upgrades.mine.level);
-  prodPerSec.oil         = clampNum(upgrades.pump.level);
-  prodPerSec.electricity = clampNum(upgrades.plant.level);
+  prodPerSec.wood = upgrades.lumberjack.level;
+  prodPerSec.stone = upgrades.miner.level;
+  prodPerSec.iron = upgrades.mine.level;
+  prodPerSec.oil = upgrades.pump.level;
+  prodPerSec.electricity = upgrades.plant.level;
+}
+function recomputeStorage(){
+  storage.wood = 50 + upgrades.woodStorage.level * 50;
+  storage.stone = 50 + upgrades.stoneStorage.level * 50;
+  storage.iron = 50 + upgrades.ironStorage.level * 50;
+  storage.oil = 50 + upgrades.oilStorage.level * 50;
+  storage.electricity = 50 + upgrades.elecStorage.level * 50;
 }
 
-// ----------------- UI Selection -----------------
+// ----------------- Folder UI -----------------
 function setSelected(res){
   selected = res;
   document.querySelectorAll(".resource-row").forEach(r=>{
@@ -88,46 +74,57 @@ function setSelected(res){
   });
   $("panelTitle").textContent = `Upgrades — ${res[0].toUpperCase()+res.slice(1)}`;
   ["wood","stone","iron","oil","electricity"].forEach(name=>{
-    const panel = $("panel-" + name);
-    panel.classList.toggle("hidden", name !== res);
+    $("panel-" + name).classList.toggle("hidden", name !== res);
   });
 }
 
-// ----------------- Buying -----------------
+// ----------------- Upgrade buying -----------------
 function tryBuy(upgradeKey, btnEl){
   const u = upgrades[upgradeKey];
   if (!canAfford(u.cost)){
-    btnEl.classList.add("shake","btn-error");
-    setTimeout(()=>btnEl.classList.remove("shake","btn-error"), 350);
+    btnEl.classList.add("shake");
+    setTimeout(()=>btnEl.classList.remove("shake"), 400);
     return;
   }
   payCost(u.cost);
-  u.level = clampNum(u.level) + 1;
+  u.level++;
   rescaleCost(u);
-
-  // If it's a storage upgrade, expand cap
-  if (upgradeKey.includes("Storage")){
-    const resName = upgradeKey.replace("Storage","");
-    storage[resName] += 50; // each storage upgrade adds +50 capacity
-  }
-
   recomputeProd();
+  recomputeStorage();
   updateDisplay();
   saveGame();
 }
 
-// ----------------- Manual gathering -----------------
+// ----------------- Resource management -----------------
 function addResource(type, amount){
-  resources[type] = Math.min(storage[type], clampNum(resources[type]) + clampNum(amount));
+  if (resources[type] + amount <= storage[type]){
+    resources[type] += amount;
+  }
   updateDisplay();
   saveGame();
 }
 
-$("gatherWood").addEventListener("click",  ()=> addResource("wood",1));
-$("gatherStone").addEventListener("click", ()=> addResource("stone",1));
-$("gatherIron").addEventListener("click",  ()=> addResource("iron",1));
-$("gatherOil").addEventListener("click",   ()=> addResource("oil",1));
-$("generatePower").addEventListener("click",()=> addResource("electricity",1));
+// ----------------- DOM bindings -----------------
+document.querySelectorAll(".resource-row").forEach(row=>{
+  row.addEventListener("click",()=>setSelected(row.dataset.select));
+});
+$("gatherWood").addEventListener("click", ()=>addResource("wood",1));
+$("gatherStone").addEventListener("click", ()=>addResource("stone",1));
+$("gatherIron").addEventListener("click", ()=>addResource("iron",1));
+$("gatherOil").addEventListener("click", ()=>addResource("oil",1));
+$("generatePower").addEventListener("click", ()=>addResource("electricity",1));
+
+$("buyLumberjack").addEventListener("click", ()=>tryBuy("lumberjack", $("buyLumberjack")));
+$("buyMiner").addEventListener("click", ()=>tryBuy("miner", $("buyMiner")));
+$("buyMine").addEventListener("click", ()=>tryBuy("mine", $("buyMine")));
+$("buyPump").addEventListener("click", ()=>tryBuy("pump", $("buyPump")));
+$("buyPlant").addEventListener("click", ()=>tryBuy("plant", $("buyPlant")));
+
+$("buyWoodStorage").addEventListener("click", ()=>tryBuy("woodStorage", $("buyWoodStorage")));
+$("buyStoneStorage").addEventListener("click", ()=>tryBuy("stoneStorage", $("buyStoneStorage")));
+$("buyIronStorage").addEventListener("click", ()=>tryBuy("ironStorage", $("buyIronStorage")));
+$("buyOilStorage").addEventListener("click", ()=>tryBuy("oilStorage", $("buyOilStorage")));
+$("buyElecStorage").addEventListener("click", ()=>tryBuy("elecStorage", $("buyElecStorage")));
 
 // ----------------- Production loop -----------------
 let last = performance.now();
@@ -137,90 +134,73 @@ function tick(){
   last = now;
 
   for (const res of ["wood","stone","iron","oil","electricity"]){
-    accum[res] += clampNum(prodPerSec[res]) * dt;
+    accum[res] += prodPerSec[res] * dt;
     while (accum[res] >= 1){
-      resources[res] = Math.min(storage[res], clampNum(resources[res]) + 1);
+      addResource(res, 1);
       accum[res] -= 1;
     }
   }
-
-  updateDisplay();
-  if (now % 1000 < 16) saveGame();
   requestAnimationFrame(tick);
 }
 requestAnimationFrame(tick);
 
 // ----------------- Display -----------------
 function updateDisplay(){
-  for (const res of ["wood","stone","iron","oil","electricity"]){
-    $(res).textContent = `${Math.floor(clampNum(resources[res]))} / ${storage[res]}`;
-  }
+  $("wood").textContent = Math.floor(resources.wood) + " / " + storage.wood;
+  $("stone").textContent = Math.floor(resources.stone) + " / " + storage.stone;
+  $("iron").textContent = Math.floor(resources.iron) + " / " + storage.iron;
+  $("oil").textContent = Math.floor(resources.oil) + " / " + storage.oil;
+  $("electricity").textContent = Math.floor(resources.electricity) + " / " + storage.electricity;
 
   $("buyLumberjack").textContent = `Hire Lumberjack (Lv ${upgrades.lumberjack.level})`;
   $("cost-lumberjack").textContent = `Cost: ${formatCost(upgrades.lumberjack.cost)}`;
-
   $("buyMiner").textContent = `Hire Miner (Lv ${upgrades.miner.level})`;
   $("cost-miner").textContent = `Cost: ${formatCost(upgrades.miner.cost)}`;
-
   $("buyMine").textContent = `Build Iron Mine (Lv ${upgrades.mine.level})`;
   $("cost-mine").textContent = `Cost: ${formatCost(upgrades.mine.cost)}`;
-
   $("buyPump").textContent = `Build Oil Pump (Lv ${upgrades.pump.level})`;
   $("cost-pump").textContent = `Cost: ${formatCost(upgrades.pump.cost)}`;
-
   $("buyPlant").textContent = `Build Power Plant (Lv ${upgrades.plant.level})`;
   $("cost-plant").textContent = `Cost: ${formatCost(upgrades.plant.cost)}`;
 
-  // Storage buttons
-  $("buyWoodStorage").textContent = `Upgrade Wood Storage (Lv ${upgrades.woodStorage.level})`;
+  $("buyWoodStorage").textContent = `Upgrade Storage (Lv ${upgrades.woodStorage.level})`;
   $("cost-woodStorage").textContent = `Cost: ${formatCost(upgrades.woodStorage.cost)}`;
-
-  $("buyStoneStorage").textContent = `Upgrade Stone Storage (Lv ${upgrades.stoneStorage.level})`;
+  $("buyStoneStorage").textContent = `Upgrade Storage (Lv ${upgrades.stoneStorage.level})`;
   $("cost-stoneStorage").textContent = `Cost: ${formatCost(upgrades.stoneStorage.cost)}`;
-
-  $("buyIronStorage").textContent = `Upgrade Iron Storage (Lv ${upgrades.ironStorage.level})`;
+  $("buyIronStorage").textContent = `Upgrade Storage (Lv ${upgrades.ironStorage.level})`;
   $("cost-ironStorage").textContent = `Cost: ${formatCost(upgrades.ironStorage.cost)}`;
-
-  $("buyOilStorage").textContent = `Upgrade Oil Storage (Lv ${upgrades.oilStorage.level})`;
+  $("buyOilStorage").textContent = `Upgrade Storage (Lv ${upgrades.oilStorage.level})`;
   $("cost-oilStorage").textContent = `Cost: ${formatCost(upgrades.oilStorage.cost)}`;
-
-  $("buyElectricityStorage").textContent = `Upgrade Power Storage (Lv ${upgrades.electricityStorage.level})`;
-  $("cost-electricityStorage").textContent = `Cost: ${formatCost(upgrades.electricityStorage.cost)}`;
+  $("buyElecStorage").textContent = `Upgrade Storage (Lv ${upgrades.elecStorage.level})`;
+  $("cost-elecStorage").textContent = `Cost: ${formatCost(upgrades.elecStorage.cost)}`;
 }
 
 // ----------------- Save / Load -----------------
 function saveGame(){
-  const save = { resources, upgrades, storage };
+  const save = { resources, upgrades };
   localStorage.setItem("earthIdleSave_v3", JSON.stringify(save));
 }
-
 function loadGame(){
   const raw = localStorage.getItem("earthIdleSave_v3");
-  if (!raw){ sanitizeState(); setSelected(selected); updateDisplay(); return; }
+  if (!raw) return;
   try{
     const save = JSON.parse(raw);
-    if (save.resources){
-      for (const k in resources){
-        resources[k] = clampNum(Number(save.resources[k] ?? 0));
-      }
-    }
-    if (save.upgrades){
-      for (const key in upgrades){
-        const src = save.upgrades[key] || {};
-        upgrades[key].level = clampNum(Number(src.level ?? 0));
-        rescaleCost(upgrades[key]);
-      }
-    }
-    if (save.storage){
-      for (const k in storage){
-        storage[k] = clampNum(Number(save.storage[k] ?? 50));
-      }
-    }
-  }catch(e){
-    console.warn("Bad save, resetting", e);
-  }
-  recomputeProd();
-  setSelected(selected);
-  updateDisplay();
+    resources = save.resources || resources;
+    upgrades = save.upgrades || upgrades;
+    recomputeProd();
+    recomputeStorage();
+  }catch(e){ console.warn("Save corrupted"); }
 }
-loadGame();
+function resetGame(){
+  localStorage.removeItem("earthIdleSave_v3");
+  location.reload();
+}
+
+// Export / Import
+$("settingsBtn").addEventListener("click",()=>{
+  $("settingsDropdown").classList.toggle("hidden");
+});
+$("exportSave").addEventListener("click",()=>{
+  $("saveText").value = localStorage.getItem("earthIdleSave_v3") || "";
+});
+$("importSave").addEvent
