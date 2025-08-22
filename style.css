@@ -1,138 +1,104 @@
-/* Base layout */
 body {
   margin: 0;
-  font-family: monospace;
-  color: #eee;
-  background: #87ceeb; /* default: sky theme */
-  min-height: 100vh;
-}
-
-/* Deep theme when unlocked */
-body.deep-mode {
-  background: linear-gradient(
-    to bottom,
-    #87ceeb 0%,   /* Sky at top */
-    #4d4d4d 50%,  /* Cave */
-    #1a1a1a 100%  /* Deep */
-  );
-  background-attachment: fixed;
-  transition: background 1s ease-in-out;
+  font-family: Arial, sans-serif;
+  color: #fff;
+  text-align: center;
+  transition: background 2s linear;
 }
 
 h1 {
-  text-align: center;
-  margin: 12px;
+  margin: 10px;
+}
+
+/* SKY (surface) background */
+body.surface {
+  background: linear-gradient(to bottom, #87ceeb, #4db8ff); /* light blue sky */
+}
+
+/* CAVE (deep) background */
+body.deep {
+  background: linear-gradient(to bottom, #3a2f2f, #0d0d0d); /* dark cave */
 }
 
 #gameContainer {
   display: flex;
-  gap: 10px;
+  justify-content: space-between;
   padding: 10px;
 }
 
-/* Panels */
 .panel {
-  background: rgba(0, 0, 0, 0.8);
-  border: 2px solid #0f3;
-  border-radius: 10px;
-  padding: 12px;
   flex: 1;
-  box-shadow: 0 0 15px rgba(0, 255, 100, 0.3);
-}
-
-/* Settings menu */
-#settingsMenu {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-}
-
-#settingsDropdown {
-  position: absolute;
-  right: 0;
-  top: 40px;
-  background: rgba(20,20,20,0.95);
-  border: 1px solid #0f3;
-  border-radius: 8px;
+  margin: 10px;
   padding: 10px;
-  width: 220px;
+  border: 2px solid #0f0;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.sectionTitle {
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.resource-row {
+  cursor: pointer;
+  padding: 5px;
+}
+
+.resource-row.active {
+  background: rgba(0, 255, 0, 0.2);
+}
+
+.btn {
+  background: transparent;
+  border: 2px solid #0f0;
+  border-radius: 10px;
+  color: #0f0;
+  padding: 5px 10px;
+  cursor: pointer;
+  margin: 5px;
+}
+
+.btn:hover {
+  background: rgba(0, 255, 0, 0.1);
+}
+
+.btn-wide {
+  display: block;
+  width: 100%;
+}
+
+.small {
+  font-size: 12px;
+  padding: 3px 6px;
+}
+
+.danger {
+  border-color: #f00;
+  color: #f00;
 }
 
 .hidden {
   display: none;
 }
 
-textarea#saveText {
-  width: 100%;
-  height: 60px;
-  margin-top: 5px;
-  resize: none;
-  background: #111;
-  color: #0f0;
-}
-
-/* Buttons */
-.btn {
-  background: #222;
-  border: 1px solid #0f3;
-  padding: 6px 10px;
-  border-radius: 6px;
-  color: #0f0;
-  cursor: pointer;
-  margin: 3px 0;
-}
-
-.btn:hover {
-  background: #333;
-}
-
-.btn.danger {
-  border-color: red;
-  color: red;
-}
-
-.btn.small {
-  padding: 4px 6px;
-  font-size: 12px;
-}
-
-.btn.btn-wide {
-  display: block;
-  width: 100%;
-}
-
-.sectionTitle {
-  font-weight: bold;
-  margin: 8px 0;
-  border-bottom: 1px solid #0f3;
-}
-
-.divider {
-  margin: 10px 0;
-  border-top: 1px dashed #0f3;
-}
-
-.hint {
+.cost {
   font-size: 12px;
   color: #aaa;
 }
 
-/* Resource list */
-.resource-row {
-  cursor: pointer;
-  padding: 4px 0;
+.hint {
+  font-size: 11px;
+  color: #aaa;
 }
 
-.resource-row.active {
-  color: #0f0;
+.divider {
+  margin: 10px 0;
+  border-top: 1px solid #444;
 }
 
-/* Deep section visuals */
 .digwrap {
-  background: rgba(20, 20, 20, 0.9);
-  border: 2px solid #093;
-  padding: 12px;
-  border-radius: 8px;
-  margin-top: 15px;
-  box-shadow: inset 0 0 10px rgba(0, 200, 50, 0.5);
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px dashed #0f0;
 }
