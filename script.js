@@ -7,13 +7,13 @@ let resources = {
   electricity: 0
 };
 
-// Upgrades (auto-generation per second)
+// Upgrade data (scaling)
 let upgrades = {
-  lumberjack: 0,
-  miner: 0,
-  mine: 0,
-  pump: 0,
-  plant: 0
+  lumberjack: { level: 0, baseCost: 10, cost: 10, resource: "wood", rate: 1 },
+  miner: { level: 0, baseCost: 10, cost: 10, resource: "stone", rate: 1 },
+  mine: { level: 0, baseCost: 20, cost: 20, resource: "iron", rate: 1 },
+  pump: { level: 0, baseCost: 30, cost: 30, resource: "oil", rate: 1 },
+  plant: { level: 0, baseCost: 50, cost: 50, resource: "electricity", rate: 1 }
 };
 
 // DOM elements
@@ -23,89 +23,45 @@ const ironEl = document.getElementById("iron");
 const oilEl = document.getElementById("oil");
 const electricityEl = document.getElementById("electricity");
 
-// Buttons
-document.getElementById("gatherWood").addEventListener("click", () => {
-  resources.wood++;
+// Click buttons
+document.getElementById("gatherWood").addEventListener("click", () => addResource("wood", 1));
+document.getElementById("gatherStone").addEventListener("click", () => addResource("stone", 1));
+document.getElementById("gatherIron").addEventListener("click", () => addResource("iron", 1));
+document.getElementById("gatherOil").addEventListener("click", () => addResource("oil", 1));
+document.getElementById("generatePower").addEventListener("click", () => addResource("electricity", 1));
+
+function addResource(type, amount) {
+  resources[type] += amount;
   updateDisplay();
   saveGame();
-});
+}
 
-document.getElementById("gatherStone").addEventListener("click", () => {
-  resources.stone++;
-  updateDisplay();
-  saveGame();
-});
-
-document.getElementById("gatherIron").addEventListener("click", () => {
-  resources.iron++;
-  updateDisplay();
-  saveGame();
-});
-
-document.getElementById("gatherOil").addEventListener("click", () => {
-  resources.oil++;
-  updateDisplay();
-  saveGame();
-});
-
-document.getElementById("generatePower").addEventListener("click", () => {
-  resources.electricity++;
-  updateDisplay();
-  saveGame();
-});
-
-// Buy upgrades
-document.getElementById("buyLumberjack").addEventListener("click", () => {
-  if (resources.wood >= 50) {
-    resources.wood -= 50;
-    upgrades.lumberjack++;
+// Upgrade purchase logic with scaling
+function buyUpgrade(name) {
+  let u = upgrades[name];
+  if (resources[u.resource] >= u.cost) {
+    resources[u.resource] -= u.cost;
+    u.level++;
+    u.cost = Math.floor(u.baseCost * Math.pow(1.5, u.level)); // cost grows ×1.5
     updateDisplay();
+    saveGame();
   }
-});
+}
 
-document.getElementById("buyMiner").addEventListener("click", () => {
-  if (resources.stone >= 50) {
-    resources.stone -= 50;
-    upgrades.miner++;
-    updateDisplay();
-  }
-});
-
-document.getElementById("buyMine").addEventListener("click", () => {
-  if (resources.iron >= 100 && resources.wood >= 50) {
-    resources.iron -= 100;
-    resources.wood -= 50;
-    upgrades.mine++;
-    updateDisplay();
-  }
-});
-
-document.getElementById("buyPump").addEventListener("click", () => {
-  if (resources.oil >= 200 && resources.iron >= 100) {
-    resources.oil -= 200;
-    resources.iron -= 100;
-    upgrades.pump++;
-    updateDisplay();
-  }
-});
-
-document.getElementById("buyPlant").addEventListener("click", () => {
-  if (resources.electricity >= 500 && resources.iron >= 200 && resources.oil >= 100) {
-    resources.electricity -= 500;
-    resources.iron -= 200;
-    resources.oil -= 100;
-    upgrades.plant++;
-    updateDisplay();
-  }
-});
+// Upgrade buttons
+document.getElementById("buyLumberjack").addEventListener("click", () => buyUpgrade("lumberjack"));
+document.getElementById("buyMiner").addEventListener("click", () => buyUpgrade("miner"));
+document.getElementById("buyMine").addEventListener("click", () => buyUpgrade("mine"));
+document.getElementById("buyPump").addEventListener("click", () => buyUpgrade("pump"));
+document.getElementById("buyPlant").addEventListener("click", () => buyUpgrade("plant"));
 
 // Auto-generation loop
 setInterval(() => {
-  resources.wood += upgrades.lumberjack;
-  resources.stone += upgrades.miner;
-  resources.iron += upgrades.mine;
-  resources.oil += upgrades.pump;
-  resources.electricity += upgrades.plant;
+  resources.wood += upgrades.lumberjack.level * upgrades.lumberjack.rate;
+  resources.stone += upgrades.miner.level * upgrades.miner.rate;
+  resources.iron += upgrades.mine.level * upgrades.mine.rate;
+  resources.oil += upgrades.pump.level * upgrades.pump.rate;
+  resources.electricity += upgrades.plant.level * upgrades.plant.rate;
   updateDisplay();
   saveGame();
 }, 1000);
@@ -117,6 +73,12 @@ function updateDisplay() {
   ironEl.textContent = resources.iron;
   oilEl.textContent = resources.oil;
   electricityEl.textContent = resources.electricity;
+
+  document.getElementById("buyLumberjack").textContent = `Hire Lumberjack (Cost: ${upgrades.lumberjack.cost} wood)`;
+  document.getElementById("buyMiner").textContent = `Hire Miner (Cost: ${upgrades.miner.cost} stone)`;
+  document.getElementById("buyMine").textContent = `Build Iron Mine (Cost: ${upgrades.mine.cost} iron)`;
+  document.getElementById("buyPump").textContent = `Build Oil Pump (Cost: ${upgrades.pump.cost} oil)`;
+  document.getElementById("buyPlant").textContent = `Build Power Plant (Cost: ${upgrades.plant.cost} electricity)`;
 }
 
 // Save + Load
@@ -128,7 +90,13 @@ function loadGame() {
   const save = JSON.parse(localStorage.getItem("earthIdleSave"));
   if (save) {
     resources = save.resources || resources;
-    upgrades = save.upgrades || upgrades;
+    // merge upgrades properly
+    for (let key in upgrades) {
+      if (save.upgrades[key]) {
+        upgrades[key].level = save.upgrades[key].level;
+        upgrades[key].cost = save.upgrades[key].cost;
+      }
+    }
   }
   updateDisplay();
 }
