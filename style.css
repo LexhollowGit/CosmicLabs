@@ -1,24 +1,71 @@
-/* Shake effect */
-.shake {
-  animation: shake 0.4s;
-  background-color: #e74c3c !important; /* 🔴 temporary red */
+body {
+  font-family: monospace;
+  background: black;
+  color: #00ff00;
+  text-align: center;
+  padding: 20px;
 }
 
+h1 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+.container {
+  border: 2px solid #00ff00;
+  border-radius: 10px;
+  padding: 15px;
+  margin: 10px auto;
+  width: 400px;
+  text-align: left;
+}
+
+.resource-header {
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 8px;
+  border: 1px solid #00ff00;
+  margin-bottom: 5px;
+  border-radius: 5px;
+  background: black;
+}
+
+.upgrades {
+  display: none;
+  margin-left: 20px;
+}
+
+button {
+  display: block;
+  margin: 5px 0;
+  padding: 6px 12px;
+  font-size: 1rem;
+  border-radius: 5px;
+  border: 1px solid #00ff00;
+  background: black;
+  color: #00ff00;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #003300;
+}
+
+.shake {
+  animation: shake 0.4s;
+}
 @keyframes shake {
   0% { transform: translateX(0); }
-  20% { transform: translateX(-5px); }
-  40% { transform: translateX(5px); }
-  60% { transform: translateX(-5px); }
-  80% { transform: translateX(5px); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
   100% { transform: translateX(0); }
 }
 
-/* Red flash effect (whole screen) */
 .flash-red {
   animation: flashRed 0.4s;
 }
-
 @keyframes flashRed {
-  0% { background-color: rgba(255, 0, 0, 0.2); }
+  0% { background-color: rgba(255, 0, 0, 0.3); }
   100% { background-color: transparent; }
 }
