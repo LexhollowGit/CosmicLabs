@@ -1,221 +1,445 @@
-// ================= GAME STATE =================
-let state = {
-  resources: {
-    wood: 0, stone: 0, iron: 0, oil: 0, electricity: 0,
-    coal: 0, uranium: 0
-  },
-  generators: {
-    lumberjack: 0, miner: 0, mine: 0, pump: 0, plant: 0,
-    coalRig: 0, uraniumDrill: 0
-  },
-  storage: {
-    wood: 100, stone: 100, iron: 100, oil: 100, electricity: 100,
-    coal: 100, uranium: 100
-  },
-  upgrades: {
-    woodStorage: 0, stoneStorage: 0, ironStorage: 0, oilStorage: 0,
-    elecStorage: 0, coalStorage: 0, uraniumStorage: 0
-  },
-  unlockedDeep: false
+// ======= State =======
+let resources = {
+  wood:0, stone:0, iron:0, oil:0, electricity:0,
+  coal:0, uranium:0,            // deep
 };
 
-// ================= CONSTANTS =================
-const GENERATOR_BASE_OUTPUT = {
-  lumberjack: 1, miner: 1, mine: 1, pump: 1, plant: 1,
-  coalRig: 1, uraniumDrill: 1
+let storage = {
+  wood:50, stone:50, iron:50, oil:50, electricity:50,
+  coal:50, uranium:50,          // deep
 };
-const STORAGE_BASE = 100;
-const STORAGE_INCREMENT = 50;
-const DEEP_REQ_LEVEL = 5;
 
-// ================= DOM REFERENCES =================
-const panels = document.querySelectorAll(".upgrade-panel");
-const rows = document.querySelectorAll(".resource-row");
-const panelTitle = document.getElementById("panelTitle");
-const deepList = document.getElementById("deepList");
-const deepHint = document.getElementById("deepHint");
-const digBtn = document.getElementById("digDeeperBtn");
-const digStatus = document.getElementById("digStatus");
+let deepUnlocked = false;
 
-// Settings menu
-const settingsBtn = document.getElementById("settingsBtn");
-const settingsDropdown = document.getElementById("settingsDropdown");
-const exportSaveBtn = document.getElementById("exportSave");
-const importSaveBtn = document.getElementById("importSave");
-const resetGameBtn = document.getElementById("resetGame");
-const saveText = document.getElementById("saveText");
+// Upgrades (generators + storage). Infinite levels via exponential scaling.
+let upgrades = {
+  // surface generators
+  lumberjack: { level:0, baseCost:{ wood:10 },                  cost:{ wood:10 } },
+  miner:      { level:0, baseCost:{ stone:10 },                 cost:{ stone:10 } },
+  mine:       { level:0, baseCost:{ iron:20, wood:10 },         cost:{ iron:20, wood:10 } },
+  pump:       { level:0, baseCost:{ oil:30, iron:20 },          cost:{ oil:30, iron:20 } },
+  plant:      { level:0, baseCost:{ electricity:50, iron:20, oil:10 }, cost:{ electricity:50, iron:20, oil:10 } },
+  // surface storage
+  woodStorage:{ level:0, baseCost:{ wood:20 },        cost:{ wood:20 } },
+  stoneStorage:{ level:0, baseCost:{ stone:20 },      cost:{ stone:20 } },
+  ironStorage:{ level:0, baseCost:{ iron:30 },        cost:{ iron:30 } },
+  oilStorage: { level:0, baseCost:{ oil:40 },         cost:{ oil:40 } },
+  elecStorage:{ level:0, baseCost:{ electricity:50 }, cost:{ electricity:50 } },
+  // deep generators
+  coalRig:       { level:0, baseCost:{ coal:100, iron:50 },             cost:{ coal:100, iron:50 } },
+  uraniumDrill:  { level:0, baseCost:{ uranium:150, iron:100, electricity:200 }, cost:{ uranium:150, iron:100, electricity:200 } },
+  // deep storage
+  coalStorage:    { level:0, baseCost:{ coal:80 },     cost:{ coal:80 } },
+  uraniumStorage: { level:0, baseCost:{ uranium:120 }, cost:{ uranium:120 } },
+};
 
-// ================= FUNCTIONS =================
-function updateUI() {
-  for (let key in state.resources) {
-    let el = document.getElementById(key);
-    if (el) {
-      el.textContent = Math.floor(state.resources[key]);
-    }
-  }
-  for (let g in state.generators) {
-    let btn = document.getElementById("buy" + capitalize(g));
-    if (btn) btn.textContent = formatGeneratorName(g) + " (Lv " + state.generators[g] + ")";
-  }
-  for (let s in state.upgrades) {
-    let btn = document.getElementById("buy" + capitalize(s));
-    if (btn) btn.textContent = "Upgrade Storage (Lv " + state.upgrades[s] + ")";
-  }
-  updateStats();
+let prodPerSec = { wood:0, stone:0, iron:0, oil:0, electricity:0, coal:0, uranium:0 };
+let accum      = { wood:0, stone:0, iron:0, oil:0, electricity:0, coal:0, uranium:0 };
+let selected   = "wood";
+
+// --- NEW: demandCap for temporary over-cap to meet costs ---
+let demandCap = { wood:0, stone:0, iron:0, oil:0, electricity:0, coal:0, uranium:0 };
+
+const $ = (id)=>document.getElementById(id);
+const clampNum = (n)=>Number.isFinite(n) ? n : 0;
+
+// ======= Utils =======
+function formatCost(obj){
+  return Object.keys(obj).map(k=>`${obj[k]} ${k}`).join(", ");
 }
-
-function updateStats() {
-  for (let res in state.resources) {
-    let line = document.getElementById("stat-" + res);
-    if (line) {
-      let genKey = generatorKey(res);
-      let output = genKey ? GENERATOR_BASE_OUTPUT[genKey] * state.generators[genKey] : 0;
-      line.textContent = `Stored: ${state.resources[res]} / ${state.storage[res]} — Per tick: +${output}`;
-    }
-  }
-}
-
-function generatorKey(resource) {
-  switch (resource) {
-    case "wood": return "lumberjack";
-    case "stone": return "miner";
-    case "iron": return "mine";
-    case "oil": return "pump";
-    case "electricity": return "plant";
-    case "coal": return "coalRig";
-    case "uranium": return "uraniumDrill";
-    default: return null;
-  }
-}
-
-function capitalize(str) {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-function formatGeneratorName(key) {
-  switch (key) {
-    case "lumberjack": return "Hire Lumberjack";
-    case "miner": return "Hire Miner";
-    case "mine": return "Build Iron Mine";
-    case "pump": return "Build Oil Pump";
-    case "plant": return "Build Power Plant";
-    case "coalRig": return "Build Coal Rig";
-    case "uraniumDrill": return "Build Uranium Drill";
-    default: return key;
-  }
-}
-
-// Error shake effect
-function bumpErrorVisual(btnId) {
-  const btn = document.getElementById(btnId);
-  if (btn) {
-    btn.classList.add("shake");
-    setTimeout(() => btn.classList.remove("shake"), 500);
-  }
-}
-
-// Check cost even if > storage
-function canAfford(cost) {
-  for (let r in cost) {
-    if (state.resources[r] < cost[r]) return false;
-  }
+function canAfford(obj){
+  for (const k in obj) if (clampNum(resources[k]) < clampNum(obj[k])) return false;
   return true;
 }
-function payCost(cost) {
-  for (let r in cost) {
-    state.resources[r] -= cost[r];
+function payCost(obj){
+  for (const k in obj) resources[k] = clampNum(resources[k]) - clampNum(obj[k]);
+}
+function rescaleCost(u){
+  const lvl = clampNum(u.level);
+  const next = {};
+  for (const k in u.baseCost){
+    next[k] = Math.floor(clampNum(u.baseCost[k]) * Math.pow(1.8, lvl));
   }
+  u.cost = next;
+}
+function recomputeProd(){
+  // each level = +1 per second (rendered as many +1 ticks)
+  prodPerSec.wood        = clampNum(upgrades.lumberjack.level);
+  prodPerSec.stone       = clampNum(upgrades.miner.level);
+  prodPerSec.iron        = clampNum(upgrades.mine.level);
+  prodPerSec.oil         = clampNum(upgrades.pump.level);
+  prodPerSec.electricity = clampNum(upgrades.plant.level);
+  prodPerSec.coal        = clampNum(upgrades.coalRig.level);
+  prodPerSec.uranium     = clampNum(upgrades.uraniumDrill.level);
+}
+function recomputeStorage(){
+  // base 50 + 50 per storage level
+  storage.wood        = 50 + 50*clampNum(upgrades.woodStorage.level);
+  storage.stone       = 50 + 50*clampNum(upgrades.stoneStorage.level);
+  storage.iron        = 50 + 50*clampNum(upgrades.ironStorage.level);
+  storage.oil         = 50 + 50*clampNum(upgrades.oilStorage.level);
+  storage.electricity = 50 + 50*clampNum(upgrades.elecStorage.level);
+  storage.coal        = 50 + 50*clampNum(upgrades.coalStorage.level);
+  storage.uranium     = 50 + 50*clampNum(upgrades.uraniumStorage.level);
 }
 
-// ================= DIG DEEPER =================
-function tryUnlockDeep() {
-  if (state.unlockedDeep) return;
-  let surface = ["lumberjack","miner","mine","pump","plant"];
-  let allReq = surface.every(g => state.generators[g] >= DEEP_REQ_LEVEL);
-  if (allReq || (
-    state.resources.wood >= 500 &&
-    state.resources.stone >= 500 &&
-    state.resources.iron >= 300 &&
-    state.resources.oil >= 200 &&
-    state.resources.electricity >= 200
-  )) {
-    revealDeepUI();
-    state.unlockedDeep = true;
-  }
-}
-function revealDeepUI() {
-  deepList.classList.remove("hidden");
-  deepHint.classList.add("hidden");
-  digStatus.textContent = "You dug deeper! New resources unlocked.";
-  document.body.classList.add("deepUnlocked");
-}
+// --- NEW: compute the max cost per resource so we can over-cap to meet it ---
+const DEEP_REQ_LEVEL = 5; // need Lv 5 on all surface generators
+const DEEP_PAY_COST = { wood:500, stone:500, iron:300, oil:200, electricity:200 };
 
-// ================= SAVE / LOAD =================
-function saveGame() {
-  localStorage.setItem("earthIdleSave", JSON.stringify(state));
-}
-function loadGame() {
-  let data = localStorage.getItem("earthIdleSave");
-  if (data) {
-    state = JSON.parse(data);
-    updateUI();
-    if (state.unlockedDeep) revealDeepUI();
-  }
-}
-function resetGame() {
-  if (!confirm("Are you sure you want to reset everything?")) return;
-  localStorage.removeItem("earthIdleSave");
-  location.reload();
-}
-
-// ================= EVENTS =================
-rows.forEach(row => {
-  row.addEventListener("click", () => {
-    rows.forEach(r => r.classList.remove("active"));
-    row.classList.add("active");
-    let res = row.dataset.select;
-    panels.forEach(p => p.classList.add("hidden"));
-    document.getElementById("panel-" + res).classList.remove("hidden");
-    panelTitle.textContent = "Upgrades — " + capitalize(res);
-  });
-});
-
-settingsBtn.addEventListener("click", () => {
-  settingsDropdown.classList.toggle("hidden");
-});
-exportSaveBtn.addEventListener("click", () => {
-  saveText.value = JSON.stringify(state);
-});
-importSaveBtn.addEventListener("click", () => {
-  try {
-    let obj = JSON.parse(saveText.value);
-    state = obj;
-    updateUI();
-    if (state.unlockedDeep) revealDeepUI();
-    saveGame();
-    alert("Save imported!");
-  } catch (e) {
-    alert("Invalid save.");
-  }
-});
-resetGameBtn.addEventListener("click", resetGame);
-
-digBtn.addEventListener("click", tryUnlockDeep);
-
-// ================= TICK LOOP =================
-function tick() {
-  for (let g in state.generators) {
-    let res = Object.keys(state.resources).find(r => generatorKey(r) === g);
-    if (res) {
-      let gain = GENERATOR_BASE_OUTPUT[g] * state.generators[g];
-      state.resources[res] = Math.min(state.resources[res] + gain, state.storage[res]);
+function recomputeDemandCaps(){
+  const caps = { wood:0, stone:0, iron:0, oil:0, electricity:0, coal:0, uranium:0 };
+  // consider all current upgrade costs
+  for (const key in upgrades){
+    const c = upgrades[key].cost || {};
+    for (const r in c){
+      caps[r] = Math.max(caps[r], clampNum(c[r]));
     }
   }
-  updateUI();
+  // also consider Dig Deeper pay path (so you can save up for it)
+  for (const r in DEEP_PAY_COST){
+    caps[r] = Math.max(caps[r], clampNum(DEEP_PAY_COST[r]));
+  }
+  demandCap = caps;
+}
+
+// --- NEW: effective cap = max(real storage, demand cap) ---
+function effectiveCap(resName){
+  return Math.max(clampNum(storage[resName] || 0), clampNum(demandCap[resName] || 0));
+}
+
+function sanitizeState(){
+  for (const k in resources) resources[k] = clampNum(Number(resources[k]));
+  for (const key in upgrades){
+    const u = upgrades[key];
+    u.level = clampNum(Number(u.level));
+    rescaleCost(u);
+  }
+  recomputeProd();
+  recomputeStorage();
+  recomputeDemandCaps(); // NEW
+}
+
+// ======= Deep Unlock Logic =======
+// (DEEP_REQ_LEVEL & DEEP_PAY_COST defined above)
+
+function meetsDeepReq(){
+  return upgrades.lumberjack.level >= DEEP_REQ_LEVEL &&
+         upgrades.miner.level      >= DEEP_REQ_LEVEL &&
+         upgrades.mine.level       >= DEEP_REQ_LEVEL &&
+         upgrades.pump.level       >= DEEP_REQ_LEVEL &&
+         upgrades.plant.level      >= DEEP_REQ_LEVEL;
+}
+function revealDeepUI(){
+  deepUnlocked = true;
+  $("deepList").classList.remove("hidden");
+  $("deepHint").classList.add("hidden");
+  $("digStatus").textContent = "Deep resources unlocked!";
+  $("digDeeperBtn").disabled = true;
+  $("digReq").textContent = "Unlocked. Explore the new resource folders on the left!";
+}
+function tryUnlockDeep(){
+  if (deepUnlocked) return;
+  if (meetsDeepReq()) { revealDeepUI(); saveGame(); return; }
+  if (canAfford(DEEP_PAY_COST)) {
+    payCost(DEEP_PAY_COST);
+    revealDeepUI();
+    updateDisplay();
+    saveGame();
+  } else {
+    bumpErrorVisual($("digDeeperBtn"));
+  }
+}
+
+// ======= Folder UI =======
+function setSelected(res){
+  selected = res;
+  document.querySelectorAll(".resource-row").forEach(r=>{
+    r.classList.toggle("active", r.dataset.select === res);
+  });
+  $("panelTitle").textContent = `Upgrades — ${res[0].toUpperCase()+res.slice(1)}`;
+  const panels = ["wood","stone","iron","oil","electricity","coal","uranium"];
+  panels.forEach(name=>{
+    const p = $("panel-"+name);
+    if (p) p.classList.toggle("hidden", name !== res);
+  });
+}
+
+// ======= Buying =======
+function bumpErrorVisual(btn){
+  btn.classList.add("shake","btn-error");
+  $("leftPanel").classList.add("shake");
+  $("rightPanel").classList.add("shake");
+  setTimeout(()=>{
+    btn.classList.remove("shake","btn-error");
+    $("leftPanel").classList.remove("shake");
+    $("rightPanel").classList.remove("shake");
+  },350);
+}
+function tryBuy(upgradeKey, btnEl){
+  const u = upgrades[upgradeKey];
+  if (!canAfford(u.cost)){ bumpErrorVisual(btnEl); return; }
+
+  payCost(u.cost);
+  u.level = clampNum(u.level)+1;
+  rescaleCost(u);
+
+  // storage expansion
+  if (upgradeKey.endsWith("Storage")) recomputeStorage();
+
+  recomputeProd();
+
+  // NEW: costs changed => recompute the demand caps so over-cap continues to match new targets
+  recomputeDemandCaps();
+
+  updateDisplay();
   saveGame();
 }
-setInterval(tick, 1000);
 
-// ================= INIT =================
+// ======= Manual gather =======
+function addResource(type, amount){
+  const cap = effectiveCap(type); // NEW: use effective cap
+  resources[type] = Math.min(cap, clampNum(resources[type]) + clampNum(amount));
+  updateDisplay();
+  saveGame();
+}
+
+// ======= Bindings =======
+// left folders
+document.querySelectorAll(".resource-row").forEach(row=>{
+  row.addEventListener("click", ()=>setSelected(row.dataset.select));
+});
+
+// gather (surface)
+$("gatherWood").addEventListener("click", ()=>addResource("wood",1));
+$("gatherStone").addEventListener("click", ()=>addResource("stone",1));
+$("gatherIron").addEventListener("click", ()=>addResource("iron",1));
+$("gatherOil").addEventListener("click", ()=>addResource("oil",1));
+$("generatePower").addEventListener("click", ()=>addResource("electricity",1));
+// gather (deep)
+$("gatherCoal").addEventListener("click", ()=>addResource("coal",1));
+$("gatherUranium").addEventListener("click", ()=>addResource("uranium",1));
+
+// buy (surface gens)
+$("buyLumberjack").addEventListener("click", ()=>tryBuy("lumberjack", $("buyLumberjack")));
+$("buyMiner").addEventListener("click",      ()=>tryBuy("miner", $("buyMiner")));
+$("buyMine").addEventListener("click",       ()=>tryBuy("mine", $("buyMine")));
+$("buyPump").addEventListener("click",       ()=>tryBuy("pump", $("buyPump")));
+$("buyPlant").addEventListener("click",      ()=>tryBuy("plant", $("buyPlant")));
+// buy (surface storage)
+$("buyWoodStorage").addEventListener("click", ()=>tryBuy("woodStorage", $("buyWoodStorage")));
+$("buyStoneStorage").addEventListener("click",()=>tryBuy("stoneStorage", $("buyStoneStorage")));
+$("buyIronStorage").addEventListener("click", ()=>tryBuy("ironStorage", $("buyIronStorage")));
+$("buyOilStorage").addEventListener("click",  ()=>tryBuy("oilStorage", $("buyOilStorage")));
+$("buyElecStorage").addEventListener("click", ()=>tryBuy("elecStorage", $("buyElecStorage")));
+// buy (deep)
+$("buyCoalRig").addEventListener("click",        ()=>tryBuy("coalRig", $("buyCoalRig")));
+$("buyCoalStorage").addEventListener("click",    ()=>tryBuy("coalStorage", $("buyCoalStorage")));
+$("buyUraniumDrill").addEventListener("click",   ()=>tryBuy("uraniumDrill", $("buyUraniumDrill")));
+$("buyUraniumStorage").addEventListener("click", ()=>tryBuy("uraniumStorage", $("buyUraniumStorage")));
+
+// dig deeper control (inside Electricity panel)
+$("digDeeperBtn").addEventListener("click", tryUnlockDeep);
+
+// ======= Production loop (+1 ticks) =======
+let last = performance.now();
+function tick(){
+  const now = performance.now();
+  const dt = (now - last) / 1000; // seconds
+  last = now;
+
+  for (const res of ["wood","stone","iron","oil","electricity","coal","uranium"]){
+    accum[res] += prodPerSec[res] * dt;
+    while (accum[res] >= 1){
+      const cap = effectiveCap(res); // NEW: use effective cap instead of storage[res]
+      if (resources[res] < cap) resources[res] = Math.min(cap, resources[res] + 1);
+      accum[res] -= 1;
+    }
+  }
+
+  // live deep requirement status
+  if (!deepUnlocked){
+    const reqOK = meetsDeepReq();
+    $("digDeeperBtn").disabled = false;
+    $("digStatus").textContent = reqOK ? "Requirement met — you can dig now!" : "";
+  }
+
+  updateDisplay();
+  if ((now|0) % 1000 < 20) saveGame(); // autosave about once/sec
+  requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+
+// ======= Display =======
+function statLine(resName, prod, cap){
+  return `Production: ${prod}/s   |   Capacity: ${cap}`;
+}
+function updateDisplay(){
+  // counts (use effective caps so the player sees the temporary over-cap target)
+  $("wood").textContent        = `${Math.floor(resources.wood)} / ${effectiveCap("wood")}`;
+  $("stone").textContent       = `${Math.floor(resources.stone)} / ${effectiveCap("stone")}`;
+  $("iron").textContent        = `${Math.floor(resources.iron)} / ${effectiveCap("iron")}`;
+  $("oil").textContent         = `${Math.floor(resources.oil)} / ${effectiveCap("oil")}`;
+  $("electricity").textContent = `${Math.floor(resources.electricity)} / ${effectiveCap("electricity")}`;
+  $("coal").textContent        = `${Math.floor(resources.coal)} / ${effectiveCap("coal")}`;
+  $("uranium").textContent     = `${Math.floor(resources.uranium)} / ${effectiveCap("uranium")}`;
+
+  // stat lines
+  $("stat-wood").textContent        = statLine("wood",        prodPerSec.wood,        effectiveCap("wood"));
+  $("stat-stone").textContent       = statLine("stone",       prodPerSec.stone,       effectiveCap("stone"));
+  $("stat-iron").textContent        = statLine("iron",        prodPerSec.iron,        effectiveCap("iron"));
+  $("stat-oil").textContent         = statLine("oil",         prodPerSec.oil,         effectiveCap("oil"));
+  $("stat-electricity").textContent = statLine("electricity", prodPerSec.electricity, effectiveCap("electricity"));
+  $("stat-coal").textContent        = statLine("coal",        prodPerSec.coal,        effectiveCap("coal"));
+  $("stat-uranium").textContent     = statLine("uranium",     prodPerSec.uranium,     effectiveCap("uranium"));
+
+  // labels + costs (surface gens)
+  $("buyLumberjack").textContent = `Hire Lumberjack (Lv ${upgrades.lumberjack.level})`;
+  $("cost-lumberjack").textContent = `Cost: ${formatCost(upgrades.lumberjack.cost)}`;
+
+  $("buyMiner").textContent = `Hire Miner (Lv ${upgrades.miner.level})`;
+  $("cost-miner").textContent = `Cost: ${formatCost(upgrades.miner.cost)}`;
+
+  $("buyMine").textContent = `Build Iron Mine (Lv ${upgrades.mine.level})`;
+  $("cost-mine").textContent = `Cost: ${formatCost(upgrades.mine.cost)}`;
+
+  $("buyPump").textContent = `Build Oil Pump (Lv ${upgrades.pump.level})`;
+  $("cost-pump").textContent = `Cost: ${formatCost(upgrades.pump.cost)}`;
+
+  $("buyPlant").textContent = `Build Power Plant (Lv ${upgrades.plant.level})`;
+  $("cost-plant").textContent = `Cost: ${formatCost(upgrades.plant.cost)}`;
+
+  // storage (surface)
+  $("buyWoodStorage").textContent  = `Upgrade Storage (Lv ${upgrades.woodStorage.level})`;
+  $("cost-woodStorage").textContent = `Cost: ${formatCost(upgrades.woodStorage.cost)}`;
+
+  $("buyStoneStorage").textContent  = `Upgrade Storage (Lv ${upgrades.stoneStorage.level})`;
+  $("cost-stoneStorage").textContent = `Cost: ${formatCost(upgrades.stoneStorage.cost)}`;
+
+  $("buyIronStorage").textContent  = `Upgrade Storage (Lv ${upgrades.ironStorage.level})`;
+  $("cost-ironStorage").textContent = `Cost: ${formatCost(upgrades.ironStorage.cost)}`;
+
+  $("buyOilStorage").textContent  = `Upgrade Storage (Lv ${upgrades.oilStorage.level})`;
+  $("cost-oilStorage").textContent = `Cost: ${formatCost(upgrades.oilStorage.cost)}`;
+
+  $("buyElecStorage").textContent  = `Upgrade Storage (Lv ${upgrades.elecStorage.level})`;
+  $("cost-elecStorage").textContent = `Cost: ${formatCost(upgrades.elecStorage.cost)}`;
+
+  // deep labels + costs
+  $("buyCoalRig").textContent = `Build Coal Rig (Lv ${upgrades.coalRig.level})`;
+  $("cost-coalRig").textContent = `Cost: ${formatCost(upgrades.coalRig.cost)}`;
+
+  $("buyCoalStorage").textContent = `Upgrade Storage (Lv ${upgrades.coalStorage.level})`;
+  $("cost-coalStorage").textContent = `Cost: ${formatCost(upgrades.coalStorage.cost)}`;
+
+  $("buyUraniumDrill").textContent = `Build Uranium Drill (Lv ${upgrades.uraniumDrill.level})`;
+  $("cost-uraniumDrill").textContent = `Cost: ${formatCost(upgrades.uraniumDrill.cost)}`;
+
+  $("buyUraniumStorage").textContent = `Upgrade Storage (Lv ${upgrades.uraniumStorage.level})`;
+  $("cost-uraniumStorage").textContent = `Cost: ${formatCost(upgrades.uraniumStorage.cost)}`;
+
+  // deep UI visibility
+  if (deepUnlocked){
+    $("deepList").classList.remove("hidden");
+    $("deepHint").classList.add("hidden");
+    $("digDeeperBtn").disabled = true;
+    $("digReq").textContent = "Unlocked. Explore the new resource folders on the left!";
+    $("digStatus").textContent = "Deep resources unlocked!";
+  }else{
+    $("digReq").innerHTML = `Requirement: reach Lv ${DEEP_REQ_LEVEL} in all surface generators
+      <br>— or pay: ${formatCost(DEEP_PAY_COST)}`;
+  }
+}
+
+// ======= Save / Load / Reset / Import / Export / Settings =======
+const SAVE_KEY = "earthIdleSave_v5";
+
+function saveGame(){
+  const save = { resources, upgrades, storage, deepUnlocked };
+  localStorage.setItem(SAVE_KEY, JSON.stringify(save));
+}
+function loadGame(){
+  // migrate from v4 if present
+  const raw = localStorage.getItem(SAVE_KEY) || localStorage.getItem("earthIdleSave_v4");
+  if (!raw){ sanitizeState(); return; }
+  try{
+    const save = JSON.parse(raw);
+
+    if (save.resources){
+      for (const k in resources){
+        resources[k] = clampNum(Number(save.resources[k] ?? resources[k]));
+      }
+    }
+    if (save.upgrades){
+      for (const key in upgrades){
+        const src = save.upgrades[key] || {};
+        upgrades[key].level = clampNum(Number(src.level ?? 0));
+        rescaleCost(upgrades[key]);
+      }
+    }
+    if (save.storage){
+      for (const k in storage){
+        storage[k] = clampNum(Number(save.storage[k] ?? storage[k]));
+      }
+    }
+    if (typeof save.deepUnlocked === "boolean") deepUnlocked = save.deepUnlocked;
+
+  }catch(e){
+    console.warn("Corrupted save, starting fresh.", e);
+  }
+  sanitizeState();
+  // if already meets req but not marked, unlock
+  if (!deepUnlocked && meetsDeepReq()) revealDeepUI();
+}
+function resetGame(){
+  localStorage.removeItem(SAVE_KEY);
+  resources = { wood:0, stone:0, iron:0, oil:0, electricity:0, coal:0, uranium:0 };
+  for (const key in upgrades){ upgrades[key].level = 0; rescaleCost(upgrades[key]); }
+  deepUnlocked = false;
+  sanitizeState();
+  setSelected("wood");
+  updateDisplay();
+}
+
+// settings dropdown behavior
+$("settingsBtn").addEventListener("click", (e)=>{
+  e.stopPropagation();
+  $("settingsDropdown").classList.toggle("hidden");
+});
+document.addEventListener("click", (e)=>{
+  const dd = $("settingsDropdown");
+  if (!dd.classList.contains("hidden")){
+    const within = dd.contains(e.target) || $("settingsBtn").contains(e.target);
+    if (!within) dd.classList.add("hidden");
+  }
+});
+document.addEventListener("keydown", (e)=>{
+  if (e.key === "Escape") $("settingsDropdown").classList.add("hidden");
+});
+
+// export/import
+$("exportSave").addEventListener("click", ()=>{
+  saveGame();
+  $("saveText").value = localStorage.getItem(SAVE_KEY) || "";
+});
+$("importSave").addEventListener("click", ()=>{
+  try{
+    const txt = $("saveText").value.trim();
+    if (!txt) return;
+    localStorage.setItem(SAVE_KEY, txt);
+    loadGame();
+    setSelected(selected);
+    updateDisplay();
+    $("settingsDropdown").classList.add("hidden");
+  }catch(e){
+    alert("Invalid save data.");
+  }
+});
+$("resetGame").addEventListener("click", ()=>{
+  if (confirm("Reset everything?")) resetGame();
+});
+
+// ======= Boot =======
 loadGame();
-updateUI();
+setSelected("wood");
+updateDisplay();
