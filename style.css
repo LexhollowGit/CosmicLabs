@@ -1,104 +1,78 @@
+/* General */
 body {
-  margin: 0;
   font-family: Arial, sans-serif;
-  color: #fff;
-  text-align: center;
-  transition: background 2s linear;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  transition: background 0.5s linear;
+  background: linear-gradient(to bottom, #87ceeb 0%, #2f2f2f 100%);
+  background-attachment: fixed;
+  color: white;
 }
 
-h1 {
-  margin: 10px;
-}
-
-/* SKY (surface) background */
-body.surface {
-  background: linear-gradient(to bottom, #87ceeb, #4db8ff); /* light blue sky */
-}
-
-/* CAVE (deep) background */
-body.deep {
-  background: linear-gradient(to bottom, #3a2f2f, #0d0d0d); /* dark cave */
-}
-
+/* Panels */
 #gameContainer {
   display: flex;
-  justify-content: space-between;
+  gap: 10px;
   padding: 10px;
 }
-
 .panel {
   flex: 1;
-  margin: 10px;
   padding: 10px;
-  border: 2px solid #0f0;
-  border-radius: 10px;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0,0,0,0.4);
+  border-radius: 8px;
 }
 
-.sectionTitle {
-  font-weight: bold;
-  margin: 10px 0;
-}
-
-.resource-row {
-  cursor: pointer;
-  padding: 5px;
-}
-
-.resource-row.active {
-  background: rgba(0, 255, 0, 0.2);
-}
-
+/* Buttons */
 .btn {
-  background: transparent;
-  border: 2px solid #0f0;
-  border-radius: 10px;
-  color: #0f0;
-  padding: 5px 10px;
+  background: #444;
+  border: none;
+  color: white;
+  padding: 6px 12px;
+  margin: 3px 0;
+  border-radius: 5px;
   cursor: pointer;
-  margin: 5px;
 }
-
 .btn:hover {
-  background: rgba(0, 255, 0, 0.1);
+  background: #666;
 }
-
 .btn-wide {
-  display: block;
   width: 100%;
 }
-
-.small {
-  font-size: 12px;
+.btn.small {
   padding: 3px 6px;
+  font-size: 12px;
+}
+.btn.danger {
+  background: #922;
+}
+.btn.danger:hover {
+  background: #c33;
 }
 
-.danger {
-  border-color: #f00;
-  color: #f00;
+/* Shake animation */
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+  100% { transform: translateX(0); }
+}
+.shake {
+  animation: shake 0.3s;
+  background-color: rgba(255, 0, 0, 0.4) !important;
 }
 
+/* Resource rows */
+.resource-row {
+  cursor: pointer;
+  padding: 4px;
+}
+.resource-row.active {
+  background: rgba(255,255,255,0.2);
+}
+
+/* Hidden */
 .hidden {
   display: none;
-}
-
-.cost {
-  font-size: 12px;
-  color: #aaa;
-}
-
-.hint {
-  font-size: 11px;
-  color: #aaa;
-}
-
-.divider {
-  margin: 10px 0;
-  border-top: 1px solid #444;
-}
-
-.digwrap {
-  margin-top: 10px;
-  padding: 10px;
-  border: 1px dashed #0f0;
 }
