@@ -1,29 +1,35 @@
-/* General */
 body {
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
   min-height: 100vh;
   transition: background 0.5s linear;
-  background: linear-gradient(to bottom, #87ceeb 0%, #2f2f2f 100%);
+  background: linear-gradient(to bottom, #87ceeb 0%, #222 100%);
   background-attachment: fixed;
   color: white;
-}
-
-/* Panels */
-#gameContainer {
-  display: flex;
-  gap: 10px;
-  padding: 10px;
 }
 .panel {
   flex: 1;
   padding: 10px;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0,0,0,0.5);
   border-radius: 8px;
+  margin: 5px;
 }
-
-/* Buttons */
+.sectionTitle {
+  font-weight: bold;
+  margin: 6px 0;
+}
+.divider {
+  border-bottom: 1px solid #888;
+  margin: 6px 0;
+}
+.resource-row {
+  cursor: pointer;
+  padding: 4px;
+}
+.resource-row.active {
+  background: rgba(255,255,255,0.2);
+}
 .btn {
   background: #444;
   border: none;
@@ -33,46 +39,18 @@ body {
   border-radius: 5px;
   cursor: pointer;
 }
-.btn:hover {
-  background: #666;
-}
-.btn-wide {
-  width: 100%;
-}
-.btn.small {
-  padding: 3px 6px;
-  font-size: 12px;
-}
-.btn.danger {
-  background: #922;
-}
-.btn.danger:hover {
-  background: #c33;
-}
+.btn:hover { background: #666; }
+.btn-wide { width: 100%; }
+.cost { font-size: 12px; color: #ccc; }
 
-/* Shake animation */
+/* Shake feedback */
 @keyframes shake {
-  0% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  50% { transform: translateX(5px); }
-  75% { transform: translateX(-5px); }
-  100% { transform: translateX(0); }
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  50% { transform: translateX(4px); }
+  75% { transform: translateX(-4px); }
 }
 .shake {
   animation: shake 0.3s;
-  background-color: rgba(255, 0, 0, 0.4) !important;
-}
-
-/* Resource rows */
-.resource-row {
-  cursor: pointer;
-  padding: 4px;
-}
-.resource-row.active {
-  background: rgba(255,255,255,0.2);
-}
-
-/* Hidden */
-.hidden {
-  display: none;
+  background-color: rgba(255,0,0,0.4) !important;
 }
