@@ -1,123 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Earth Idle Extended</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <title>Resource Game</title>
+  <link rel="stylesheet" href="style.css">
 </head>
-<body>
-  <h1>🌍 Earth Idle</h1>
+<body class="skyLayer">
+  <h1>🌍 Resource Collector</h1>
 
-  <div id="gameContainer">
-    <!-- LEFT: resources -->
-    <div id="leftPanel" class="panel">
-      <div class="sectionTitle">Surface Resources</div>
-      <div class="resource-row active" data-select="wood">🌲 Wood: <span id="wood">0</span></div>
-      <div class="resource-row" data-select="stone">⛰️ Stone: <span id="stone">0</span></div>
-      <div class="resource-row" data-select="food">🌾 Food: <span id="food">0</span></div>
+  <div id="resources">
+    <!-- Surface -->
+    <div class="resource"><span>🌳 Wood:</span> <span id="wood">0</span>/<span id="woodStorage">50</span></div>
+    <div class="resource"><span🪨> Stone:</span> <span id="stone">0</span>/<span id="stoneStorage">50</span></div>
+    <div class="resource"><span>⛓ Iron:</span> <span id="iron">0</span>/<span id="ironStorage">50</span></div>
+    <div class="resource"><span>🛢 Oil:</span> <span id="oil">0</span>/<span id="oilStorage">50</span></div>
+    <div class="resource"><span>⚡ Electricity:</span> <span id="electricity">0</span>/<span id="electricityStorage">50</span></div>
 
-      <div class="divider"></div>
-      <div class="sectionTitle">Underground</div>
-      <div class="resource-row" data-select="iron">⛓️ Iron: <span id="iron">0</span></div>
-      <div class="resource-row" data-select="copper">🟠 Copper: <span id="copper">0</span></div>
-      <div class="resource-row" data-select="gold">🟡 Gold: <span id="gold">0</span></div>
+    <!-- Shallow underground -->
+    <div class="resource"><span>🪵 Coal:</span> <span id="coal">0</span>/<span id="coalStorage">50</span></div>
+    <div class="resource"><span>☢ Uranium:</span> <span id="uranium">0</span>/<span id="uraniumStorage">50</span></div>
 
-      <div class="divider"></div>
-      <div class="sectionTitle">Deep Earth</div>
-      <div class="resource-row" data-select="oil">🛢️ Oil: <span id="oil">0</span></div>
-      <div class="resource-row" data-select="coal">🪨 Coal: <span id="coal">0</span></div>
-      <div class="resource-row" data-select="diamond">💎 Diamond: <span id="diamond">0</span></div>
-      <div class="resource-row" data-select="obsidian">⚫ Obsidian: <span id="obsidian">0</span></div>
+    <!-- Deeper layers -->
+    <div class="resource"><span>🥇 Gold:</span> <span id="gold">0</span>/<span id="goldStorage">50</span></div>
+    <div class="resource"><span>💎 Diamond:</span> <span id="diamond">0</span>/<span id="diamondStorage">50</span></div>
+    <div class="resource"><span>🌋 Lava:</span> <span id="lava">0</span>/<span id="lavaStorage">50</span></div>
+    <div class="resource"><span>🌌 Plasma:</span> <span id="plasma">0</span>/<span id="plasmaStorage">50</span></div>
+  </div>
 
-      <div class="divider"></div>
-      <div class="sectionTitle">Mantle</div>
-      <div class="resource-row" data-select="uranium">☢️ Uranium: <span id="uranium">0</span></div>
-      <div class="resource-row" data-select="magma">🌋 Magma: <span id="magma">0</span></div>
+  <!-- Controls -->
+  <div id="controls">
+    <h2>Manual Gathering</h2>
+    <button id="gatherWood">Gather Wood</button>
+    <button id="gatherStone">Gather Stone</button>
+    <button id="gatherIron">Gather Iron</button>
+    <button id="gatherOil">Gather Oil</button>
+    <button id="gatherCoal">Mine Coal</button>
+    <button id="gatherUranium">Drill Uranium</button>
+    <button id="gatherGold">Mine Gold</button>
+    <button id="gatherDiamond">Mine Diamond</button>
+    <button id="gatherLava">Pump Lava</button>
+    <button id="gatherPlasma">Extract Plasma</button>
+  </div>
 
-      <div class="divider"></div>
-      <div class="sectionTitle">Core</div>
-      <div class="resource-row" data-select="electricity">⚡ Electricity: <span id="electricity">0</span></div>
-      <div class="resource-row" data-select="antimatter">🪐 Antimatter: <span id="antimatter">0</span></div>
+  <!-- Upgrades -->
+  <div id="upgrades">
+    <h2>Upgrades</h2>
+    <div>
+      <button id="buyWoodGenerator">Upgrade Wood Generator</button>
+      <button id="buyWoodStorage">Upgrade Wood Storage</button>
     </div>
+    <div>
+      <button id="buyStoneGenerator">Upgrade Stone Generator</button>
+      <button id="buyStoneStorage">Upgrade Stone Storage</button>
+    </div>
+    <div>
+      <button id="buyIronGenerator">Upgrade Iron Generator</button>
+      <button id="buyIronStorage">Upgrade Iron Storage</button>
+    </div>
+    <div>
+      <button id="buyOilPump">Upgrade Oil Pump</button>
+      <button id="buyOilStorage">Upgrade Oil Storage</button>
+    </div>
+    <div>
+      <button id="buyCoalRig">Upgrade Coal Rig</button>
+      <button id="buyCoalStorage">Upgrade Coal Storage</button>
+    </div>
+    <div>
+      <button id="buyUraniumDrill">Upgrade Uranium Drill</button>
+      <button id="buyUraniumStorage">Upgrade Uranium Storage</button>
+    </div>
+    <div>
+      <button id="buyGoldMine">Upgrade Gold Mine</button>
+      <button id="buyGoldStorage">Upgrade Gold Storage</button>
+    </div>
+    <div>
+      <button id="buyDiamondExtractor">Upgrade Diamond Extractor</button>
+      <button id="buyDiamondStorage">Upgrade Diamond Storage</button>
+    </div>
+    <div>
+      <button id="buyLavaPump">Upgrade Lava Pump</button>
+      <button id="buyLavaStorage">Upgrade Lava Storage</button>
+    </div>
+    <div>
+      <button id="buyPlasmaReactor">Upgrade Plasma Reactor</button>
+      <button id="buyPlasmaStorage">Upgrade Plasma Storage</button>
+    </div>
+  </div>
 
-    <!-- RIGHT: upgrades -->
-    <div id="rightPanel" class="panel">
-      <h2 id="panelTitle">Upgrades — Wood</h2>
-
-      <!-- Template panel for each resource -->
-      <div class="upgrade-panel" id="panel-wood">
-        <div class="statline" id="stat-wood"></div>
-        <button id="gatherWood" class="btn">Gather Wood (+1)</button>
-        <button id="buyWoodGen" class="btn btn-wide">Hire Lumberjack (Lv 0)</button>
-        <div id="cost-woodGen" class="cost">Cost: 10 wood</div>
-        <button id="buyWoodStorage" class="btn btn-wide">Upgrade Storage (Lv 0)</button>
-        <div id="cost-woodStorage" class="cost">Cost: 20 wood</div>
-      </div>
-
-      <!-- Repeat for each new resource -->
-      <div class="upgrade-panel hidden" id="panel-food">
-        <div class="statline" id="stat-food"></div>
-        <button id="gatherFood" class="btn">Gather Food (+1)</button>
-        <button id="buyFoodGen" class="btn btn-wide">Hire Farmer (Lv 0)</button>
-        <div id="cost-foodGen" class="cost">Cost: 10 food</div>
-        <button id="buyFoodStorage" class="btn btn-wide">Upgrade Storage (Lv 0)</button>
-        <div id="cost-foodStorage" class="cost">Cost: 20 food</div>
-      </div>
-
-      <div class="upgrade-panel hidden" id="panel-copper">
-        <div class="statline" id="stat-copper"></div>
-        <button id="gatherCopper" class="btn">Mine Copper (+1)</button>
-        <button id="buyCopperGen" class="btn btn-wide">Build Copper Mine (Lv 0)</button>
-        <div id="cost-copperGen" class="cost">Cost: 15 copper</div>
-        <button id="buyCopperStorage" class="btn btn-wide">Upgrade Storage (Lv 0)</button>
-        <div id="cost-copperStorage" class="cost">Cost: 25 copper</div>
-      </div>
-
-      <div class="upgrade-panel hidden" id="panel-gold">
-        <div class="statline" id="stat-gold"></div>
-        <button id="gatherGold" class="btn">Mine Gold (+1)</button>
-        <button id="buyGoldGen" class="btn btn-wide">Build Gold Mine (Lv 0)</button>
-        <div id="cost-goldGen" class="cost">Cost: 20 gold</div>
-        <button id="buyGoldStorage" class="btn btn-wide">Upgrade Storage (Lv 0)</button>
-        <div id="cost-goldStorage" class="cost">Cost: 30 gold</div>
-      </div>
-
-      <div class="upgrade-panel hidden" id="panel-diamond">
-        <div class="statline" id="stat-diamond"></div>
-        <button id="gatherDiamond" class="btn">Mine Diamond (+1)</button>
-        <button id="buyDiamondGen" class="btn btn-wide">Build Diamond Drill (Lv 0)</button>
-        <div id="cost-diamondGen" class="cost">Cost: 50 diamond</div>
-        <button id="buyDiamondStorage" class="btn btn-wide">Upgrade Storage (Lv 0)</button>
-        <div id="cost-diamondStorage" class="cost">Cost: 70 diamond</div>
-      </div>
-
-      <div class="upgrade-panel hidden" id="panel-obsidian">
-        <div class="statline" id="stat-obsidian"></div>
-        <button id="gatherObsidian" class="btn">Mine Obsidian (+1)</button>
-        <button id="buyObsidianGen" class="btn btn-wide">Build Obsidian Extractor (Lv 0)</button>
-        <div id="cost-obsidianGen" class="cost">Cost: 60 obsidian</div>
-        <button id="buyObsidianStorage" class="btn btn-wide">Upgrade Storage (Lv 0)</button>
-        <div id="cost-obsidianStorage" class="cost">Cost: 90 obsidian</div>
-      </div>
-
-      <div class="upgrade-panel hidden" id="panel-magma">
-        <div class="statline" id="stat-magma"></div>
-        <button id="gatherMagma" class="btn">Collect Magma (+1)</button>
-        <button id="buyMagmaGen" class="btn btn-wide">Build Magma Collector (Lv 0)</button>
-        <div id="cost-magmaGen" class="cost">Cost: 80 magma</div>
-        <button id="buyMagmaStorage" class="btn btn-wide">Upgrade Storage (Lv 0)</button>
-        <div id="cost-magmaStorage" class="cost">Cost: 120 magma</div>
-      </div>
-
-      <div class="upgrade-panel hidden" id="panel-antimatter">
-        <div class="statline" id="stat-antimatter"></div>
-        <button id="gatherAntimatter" class="btn">Collect Antimatter (+1)</button>
-        <button id="buyAntimatterGen" class="btn btn-wide">Build Antimatter Reactor (Lv 0)</button>
-        <div id="cost-antimatterGen" class="cost">Cost: 200 antimatter</div>
-        <button id="buyAntimatterStorage" class="btn btn-wide">Upgrade Storage (Lv 0)</button>
-        <div id="cost-antimatterStorage" class="cost">Cost: 300 antimatter</div>
-      </div>
+  <!-- Settings -->
+  <div id="settingsMenu">
+    <button id="menuBtn">⋯</button>
+    <div id="settingsDropdown" class="hidden">
+      <button id="exportSave">Export Save</button>
+      <button id="importSave">Import Save</button>
+      <button id="resetGame">Reset Game</button>
     </div>
   </div>
 
